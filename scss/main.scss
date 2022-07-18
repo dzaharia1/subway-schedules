@@ -15,3 +15,30 @@ a {
 .hidden {
 	display: none;
 }
+
+body {
+	font-family: Helvetica;
+}
+
+li {
+	@extend %horizontal-center;
+	margin-bottom: 1rem;
+
+	.warn {
+		color: red;
+	}
+
+	h3 {
+		@extend %horizontal-center;
+		justify-content: center;
+		align-items: center;
+		width: 24px;
+		height: 24px;
+		border-radius: 50%;
+		margin-right: .25rem;
+	}
+
+	p {
+		margin-right: .5rem;
+	}
+}

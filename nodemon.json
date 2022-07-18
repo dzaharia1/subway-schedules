@@ -2,6 +2,7 @@
   "ignore": ["public/*"],
   "watch": [
     "app.js",
-    "gtfssample.js"
+    "gtfssample.js",
+    "./modules/gtfs.js"
   ]
 }

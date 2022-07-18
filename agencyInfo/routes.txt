@@ -1,4 +1,3 @@
-agency_id,route_id,route_short_name,route_long_name,route_type,route_desc,route_url,route_color,route_text_color
 MTA NYCT,1,1,Broadway - 7 Avenue Local,1,"Trains operate between 242 St in the Bronx and South Ferry in Manhattan, at all times",http://web.mta.info/nyct/service/pdf/t1cur.pdf,EE352E,
 MTA NYCT,2,2,7 Avenue Express,1,"Trains operate between Wakefield-241 St, Bronx, and Flatbush Av-Brooklyn College, Brooklyn, at all times. Trains operate local in Bronx and Brooklyn. Trains operate express in Manhattan except late night when it operates local.",http://web.mta.info/nyct/service/pdf/t2cur.pdf,EE352E,
 MTA NYCT,3,3,7 Avenue Express,1,"Trains operate between 148 St, 7 Av, Manhattan, and New Lots Av, Brooklyn, at all times except late nights. During late nights, trains operate only in Manhattan between 148 St, 7 Av and Times Square-42 St.",http://web.mta.info/nyct/service/pdf/t3cur.pdf,EE352E,

@@ -1,4 +1,3 @@
-stop_id,stop_name,stop_lat,stop_lon,location_type,parent_station
 101,Van Cortlandt Park-242 St,40.889248,-73.898583,1,
 101N,Van Cortlandt Park-242 St,40.889248,-73.898583,,101
 101S,Van Cortlandt Park-242 St,40.889248,-73.898583,,101

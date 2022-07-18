@@ -1,9 +1,28 @@
 
-	<% include partials/_header %>
+	<%- include('partials/_header') %>
 
 <main>
-	subway-arrivals app is ready!
+	<!-- <select name="" id="stop-selector">
+		<% for (station of stations) { %>
+			<option value="<%= station.stopId %>"><%= station.stopName %></option>
+		<% } %>
+	</select> -->
+	<ul>
+		<% for (let i = 0; i < 6; i ++) {
+			let routeColor;
+			for (route of routes) {
+				if (route.routeId == arrivals[i].routeId) {
+					routeColor = route.color;
+				}
+			} %>
+			<li>
+				<h3 style="background-color: <%= routeColor %>;"><%= arrivals[i].routeId %></h3>
+				<p><% if (arrivals[i].direction == "N") { %>Northbound<%} else { %>Southbound<%} %></p>
+				<p><%= arrivals[i].minutesUntil %>min</p>
+			</li>
+		<% } %>
+	</ul>
 </main>
 
-	<% include partials/_footer %>
+	<%- include('partials/_footer') %>
 

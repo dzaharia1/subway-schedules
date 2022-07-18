@@ -1,0 +1,7 @@
+{
+  "ignore": ["public/*"],
+  "watch": [
+    "app.js",
+    "gtfssample.js"
+  ]
+}

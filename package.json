@@ -1,0 +1,28 @@
+{
+  "name": "subway-schedules",
+  "version": "1.0.0",
+  "description": "An api showing arrival times for any subway station",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "dev": "nodemon app.js & gulp"
+  },
+  "author": "Dan Zaharia",
+  "license": "ISC",
+  "devDependencies": {
+    "browser-sync": "^2.27.10",
+    "gulp": "^4.0.2",
+    "gulp-autoprefixer": "^8.0.0",
+    "gulp-plumber": "^1.2.1",
+    "gulp-sass": "^5.1.0",
+    "gulp-scss-lint": "^1.0.0"
+  },
+  "dependencies": {
+    "consolidate": "^0.16.0",
+    "ejs": "^3.1.8",
+    "express": "^4.18.1",
+    "gtfs-realtime-bindings": "^0.0.6",
+    "request": "^2.88.2"
+  }
+}

@@ -20,7 +20,7 @@ app.port = app.set('port', process.env.PORT || localport);
 app.get('/', (req, res) => {
   let viewData = {};
   viewData.stations = gtfs.stations;
-  viewData.arrivals = gtfs.getStationSchedule('A24');
+  viewData.arrivals = gtfs.getStationSchedule('A25', 'ace');
   viewData.routes = gtfs.routes;
   res.render('index', viewData);
 });

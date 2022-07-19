@@ -9,14 +9,15 @@
 	</select> -->
 	<ul>
 		<% for (let i = 0; i < 6; i ++) {
-			let routeColor;
+			let routeColor, routeTextColor;
 			for (route of routes) {
 				if (route.routeId == arrivals[i].routeId) {
 					routeColor = route.color;
+					routeTextColor = route.textColor;
 				}
 			} %>
 			<li>
-				<h3 style="background-color: <%= routeColor %>;"><%= arrivals[i].routeId %></h3>
+				<h3 style="background-color: <%= routeColor %>; color: <%= routeTextColor %>"><%= arrivals[i].routeId %></h3>
 				<p><% if (arrivals[i].direction == "N") { %>Northbound<%} else { %>Southbound<%} %></p>
 				<p><%= arrivals[i].minutesUntil %> min</p>
 			</li>

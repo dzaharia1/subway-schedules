@@ -7,20 +7,20 @@ const fs = require('fs');
 let stationsFile = path.join(__dirname, '../agencyInfo/stations.txt');
 let routesFile =  path.join(__dirname, '../agencyInfo/routes.txt');
 
-// let vehicles = [];
 let tripUpdates = [];
+let arrivals = [];
 let routes = [];
 let stations = [];
 
 let feeds = {
-    "ace": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-ace",
-    "bdfm": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-bdfm",
-    "g": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-g",
-    "jz": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-jz",
-    "nqrw": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-nqrw",
-    "l": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-l",
+    "ACE": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-ace",
+    "BDFM": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-bdfm",
+    "G": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-g",
+    "JZ": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-jz",
+    "NQRW": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-nqrw",
+    "L": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-l",
     "1234567": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs",
-    "si": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-si"
+    "SI": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-si"
 
 }
 
@@ -34,7 +34,7 @@ const requestSettings = {
 
 setUpStations();
 setUpRoutes();
-getTripUpdates('ace');
+getStationSchedule("A24", "ACE");
 
 function setUpStations() {
     console.log('Setting up stations');
@@ -53,7 +53,7 @@ function setUpStations() {
                 stations.push(stationObject);
             }
         } else {
-            console.log(err);
+            console.error(err);
         }
     });
 }
@@ -72,14 +72,14 @@ function setUpRoutes() {
             routeObject.textColor = `#${route[8]}`;
             routes.push(routeObject);
         }
+        routes.pop();
     } else {
-      console.log(err);
+      console.error(err);
     }
   });
 }
 
-function getTripUpdates (service) {
-    console.log(`Refreshing trip updates for ${service}`);
+function getTripUpdates (service, callback) {
     tripUpdates = [];
     requestSettings.url = feeds[service];
     request(requestSettings, (error, response, body) => {
@@ -88,17 +88,19 @@ function getTripUpdates (service) {
             for (entity of gtfsData.entity) {
                 if (entity.tripUpdate) { tripUpdates.push(entity) }
             }
+            callback();
+        } else {
+            console.error(error);
         }
     });
 }
 
-function getStationSchedule(stopId, service) {
+function getStationSchedule(stopId, service, callback) {
     console.log(`Getting ${service} schedule for ${stopId}`);
-    let arrivals = [];
+    arrivals = [];
 
-    getTripUpdates(service);
-    
-    for (tripUpdate of tripUpdates) {
+    getTripUpdates(service, () => {
+        for (tripUpdate of tripUpdates) {
             for (stopTimeUpdate of tripUpdate.tripUpdate.stopTimeUpdate) {
                 if (stopTimeUpdate.stopId.indexOf(stopId) >= 0){
                     let scheduleItem = {};
@@ -117,10 +119,11 @@ function getStationSchedule(stopId, service) {
                     }
                 }
             }
-    }
-
-    arrivals.sort((a, b) => (a.minutesUntil > b.minutesUntil) ? 1 : -1);
-    return arrivals;
+        }
+        arrivals.sort((a, b) => (a.minutesUntil > b.minutesUntil) ? 1 : -1);
+        exports.arrivals = arrivals;
+        if (callback) { callback() }
+    });
 }
 
 function getVehicleFromTripID (tripId) {
@@ -165,9 +168,9 @@ function CSVToArray( strData, strDelimiter ){
     return( arrData );
 }
 
-exports.tripUpdates = tripUpdates;
-exports.routes = routes;
+exports.arrivals = arrivals;
 exports.stations = stations;
+exports.routes = routes;
 exports.setUpStations = setUpStations;
 exports.setUpRoutes = setUpRoutes;
 exports.getTripUpdates = getTripUpdates;

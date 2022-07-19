@@ -2,11 +2,13 @@
 	<%- include('partials/_header') %>
 
 <main>
-	<!-- <select name="" id="stop-selector">
+	<select name="Stations" id="stop-selector">
 		<% for (station of stations) { %>
-			<option value="<%= station.stopId %>"><%= station.stopName %></option>
+			<option value="<%= station.stopId %>"><%= station.name %> (<% station.lines.forEach(item => { %>
+				<%= item %>, 
+			<% }) %>)</option>
 		<% } %>
-	</select> -->
+	</select>
 	<ul>
 		<% for (let i = 0; i < 6; i ++) {
 			let routeColor, routeTextColor;

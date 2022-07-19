@@ -18,7 +18,7 @@
 			<li>
 				<h3 style="background-color: <%= routeColor %>;"><%= arrivals[i].routeId %></h3>
 				<p><% if (arrivals[i].direction == "N") { %>Northbound<%} else { %>Southbound<%} %></p>
-				<p><%= arrivals[i].minutesUntil %> min</p>
+				<p><%= arrivals[i].minutesUntil %>min</p>
 			</li>
 		<% } %>
 	</ul>

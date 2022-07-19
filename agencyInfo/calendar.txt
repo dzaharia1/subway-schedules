@@ -1,4 +1,3 @@
-service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,start_date,end_date
 ASP22GEN-1037-Sunday-00_C21,0,0,0,0,0,0,1,20220626,20221127
 ASP22GEN-1038-Saturday-00_C50,0,0,0,0,0,1,0,20220702,20221203
 ASP22GEN-1091-Weekday-00_C9,1,1,1,1,1,0,0,20220627,20221202

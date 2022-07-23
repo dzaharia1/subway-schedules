@@ -45,24 +45,15 @@ function setUpStations() {
         if (!err) {
             let rawData = CSVToArray(data, ',');
             for (let station of rawData) {
-                let existingStation = stations.find(obj => obj.name.indexOf(station[1]) > -1);
-                if (existingStation) {
-                    existingStation.stopIds.push(station[0]);
-                    for (let i = 2; i < station.length; i ++) {
-                        if (station[i][0] === ' ') { station[i] = station[i].substr(1) }
-                        existingStation.lines.push(station[i]);
-                    }
-                } else {
-                    let stationObject = {};
-                    stationObject.stopIds = [station[0]];
-                    stationObject.name = station[1];
-                    stationObject.lines = []
-                    for (let i = 2; i < station.length; i ++) {
-                        stationObject.lines.push(station[i].replace(/\s/g, ''));
-                    }
-                    stationObject.lines.sort((a, b) => (a > b) ? 1 : -1);
-                    stations.push(stationObject);
+                let stationObject = {};
+                stationObject.stopId = station[0];
+                stationObject.name = station[1];
+                stationObject.lines = []
+                for (let i = 2; i < station.length; i ++) {
+                    stationObject.lines.push(station[i].replace(/\s/g, ''));
                 }
+                stationObject.lines.sort((a, b) => (a > b) ? 1 : -1);
+                stations.push(stationObject);
             }
         } else {
             console.error(err);
@@ -72,7 +63,7 @@ function setUpStations() {
 
 function getFeedsForStation(stopId) {
     let returnArray = [];
-    let thisStation = stations.find(obj => obj.stopIds.indexOf(stopId) > -1);
+    let thisStation = stations.find(obj => obj.stopId.indexOf(stopId) > -1);
 
     for (let line of thisStation.lines) {
         let lineService = services.find(obj => obj.indexOf(line[0]) > -1 );
@@ -128,7 +119,7 @@ function getTripUpdates (services, tripUpdatesArray, callback) {
 
 function getStationSchedule(stopId, callback) {
     // get the trip updates for each of the services of the station
-    let station = stations.find(obj => obj.stopIds.includes(stopId));
+    let station = stations.find(obj => obj.stopId.includes(stopId));
     let stationServices = getFeedsForStation(stopId);
     let tripUpdates = [];
     let arrivals = [];
@@ -138,8 +129,7 @@ function getStationSchedule(stopId, callback) {
         console.log(now);
         for (let tripUpdate of tripUpdates) {
             for (let stopTimeUpdate of tripUpdate.tripUpdate.stopTimeUpdate) {
-                if (station.stopIds.includes(stopTimeUpdate.stopId.substr(0, 3)) && stopTimeUpdate.arrival) {
-                    console.log(stopTimeUpdate);
+                if (station.stopId.includes(stopTimeUpdate.stopId.substr(0, 3)) && stopTimeUpdate.arrival) {
                     let timeStamp = parseInt(stopTimeUpdate.arrival.time.low) * 1000;
                     let arrivalTime = new Date(timeStamp);
                     let minutesUntil = Math.floor((timeStamp - now) / 60000);

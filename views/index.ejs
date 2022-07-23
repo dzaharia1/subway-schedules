@@ -5,9 +5,8 @@
 	<h1><%= thisStation.name %></h1>
 	<select name="Stations" id="stop-selector">
 		<% for (station of stations) { %>
-			<option value="<%= station.stopIds[0] %>"><%= station.name %> (<% station.lines.forEach(item => { %>
-				<%= item %>, 
-			<% }) %>)</option>
+			<option value="<%= station.stopId %>" <% if (station.stopId === thisStation.stopId) { %>selected<% } %>><%= station.name %> (<% station.lines.forEach(item => { %>
+				<%= item %>, <% }) %>)</option>
 		<% } %>
 	</select>
 	<ul>

@@ -5,9 +5,11 @@ var readyFunction = function() {
 	stopSelector = document.querySelector('#stop-selector');
 	arrivalItems = document.querySelectorAll('li');
 
-	// stopSelector.addEventListener('change', (e) => {
-	// 	window.location.href += `schedule/${stopSelector.value}`;
-	// });
+	stopSelector.addEventListener('change', (e) => {
+		console.log(stopSelector.value);
+		console.log(window.location);
+		window.location.href = `/web/${stopSelector.value}`;
+	});
 
 	for (arrival of arrivalItems) {
 		let time = arrival.querySelector('p:last-child');

@@ -31,14 +31,26 @@ app.get('/', (req, res) => {
   });
 });
 
-app.get('/:stopid/:service', (req, res) => {
-  console.log("starting get");
-  gtfs.getStationSchedule(req.params.stopid, req.params.service, () => {
+app.get('/web/:stopid/:service', (req, res) => {
+  gtfs.getStationSchedule(req.params.stopid, (schedule) => {
     let viewData = {};
+    viewData.thisStation = gtfs.stations.find(obj => obj.stopId.includes(req.params.stopId));
     viewData.stations = gtfs.stations;
     viewData.routes = gtfs.routes;
-    viewData.arrivals = gtfs.arrivals;
+    viewData.arrivals = schedule.filter(obj => obj.routeId === req.params.service);
     // res.json(viewData.stations);
+    res.render('index', viewData);
+  });
+});
+
+app.get('/web/:stopid', (req, res) => {
+  gtfs.getStationSchedule(req.params.stopid, (schedule) => {
+    let viewData = {};
+    viewData.thisStation = gtfs.stations.find(obj => obj.stopId.includes(req.params.stopid));
+    viewData.stations = gtfs.stations;
+    viewData.routes = gtfs.routes;
+    viewData.arrivals = schedule;
+    console.log(viewData.thisStation);
     res.render('index', viewData);
   });
 });
@@ -71,10 +83,16 @@ app.get('/tripUpdates', (req, res) => {
   res.json(gtfs.tripUpdates);
 });
 
+app.get('/arrivals/:stopid', (req, res) => {
+  gtfs.getStationSchedule(req.params.stopid, (schedule) => {
+    res.json(schedule);
+  });
+});
+
 app.get('/arrivals/:stopid/:service', (req, res) => {
   // res.json(gtfs.getStationSchedule(req.params.stopId, req.params.service));
-  gtfs.getStationSchedule(req.params.stopid, req.params.service, () => {
-    res.json(gtfs.arrivals);
+  gtfs.getStationSchedule(req.params.stopid, (schedule) => {
+    res.json(schedule.filter(obj => obj.routeId === req.params.service));
   });
 });
 

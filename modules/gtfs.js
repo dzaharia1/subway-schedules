@@ -47,13 +47,14 @@ function setUpStations() {
             for (let station of rawData) {
                 let existingStation = stations.find(obj => obj.name.indexOf(station[1]) > -1);
                 if (existingStation) {
+                    existingStation.stopIds.push(station[0]);
                     for (let i = 2; i < station.length; i ++) {
                         if (station[i][0] === ' ') { station[i] = station[i].substr(1) }
                         existingStation.lines.push(station[i]);
                     }
                 } else {
                     let stationObject = {};
-                    stationObject.stopId = station[0];
+                    stationObject.stopIds = [station[0]];
                     stationObject.name = station[1];
                     stationObject.lines = []
                     for (let i = 2; i < station.length; i ++) {
@@ -71,7 +72,7 @@ function setUpStations() {
 
 function getFeedsForStation(stopId) {
     let returnArray = [];
-    let thisStation = stations.find(obj => obj.stopId.indexOf(stopId) > -1);
+    let thisStation = stations.find(obj => obj.stopIds.indexOf(stopId) > -1);
 
     for (let line of thisStation.lines) {
         let lineService = services.find(obj => obj.indexOf(line[0]) > -1 );
@@ -105,8 +106,6 @@ function setUpRoutes() {
 }
 
 function getTripUpdates (services, tripUpdatesArray, callback) {
-    console.log(`getting updates for`);
-    console.log(services);
     service = services[0];
     requestSettings.url = feeds[service];
     request(requestSettings, (error, response, body) => {
@@ -115,9 +114,8 @@ function getTripUpdates (services, tripUpdatesArray, callback) {
             for (let entity of gtfsData.entity) {
                 if (entity.tripUpdate) { tripUpdatesArray.push(entity); }
             }
-            if (services.length > 1) {
-                services.shift();
-                console.log(`New services array is ${services}`);
+            services.shift();
+            if (services.length > 0) {
                 getTripUpdates(services, tripUpdatesArray, callback);
             } else {
                 callback();
@@ -128,29 +126,40 @@ function getTripUpdates (services, tripUpdatesArray, callback) {
     });
 }
 
-// function getTripUpdates (service, callback) {
-//     let tripUpdates = [];
-//     requestSettings.url = feeds[service];
-//     request(requestSettings, (error, response, body) => {
-//         if (!error && response.statusCode == 200) {
-//             let gtfsData = GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(body);
-//             for (let entity of gtfsData.entity) {
-//                 if (entity.tripUpdate) { tripUpdates.push(entity) }
-//             }
-//             callback(tripUpdates);
-//         } else {
-//             console.error(error);
-//         }
-//     });
-// }
-
 function getStationSchedule(stopId, callback) {
     // get the trip updates for each of the services of the station
+    let station = stations.find(obj => obj.stopIds.includes(stopId));
     let stationServices = getFeedsForStation(stopId);
     let tripUpdates = [];
     let arrivals = [];
+
     getTripUpdates(stationServices, tripUpdates, () => {
-        console.log(tripUpdates);
+        let now = Date.now();
+        console.log(now);
+        for (let tripUpdate of tripUpdates) {
+            for (let stopTimeUpdate of tripUpdate.tripUpdate.stopTimeUpdate) {
+                if (station.stopIds.includes(stopTimeUpdate.stopId.substr(0, 3))) {
+                    console.log(stopTimeUpdate);
+                    let timeStamp = parseInt(stopTimeUpdate.arrival.time.low) * 1000;
+                    let arrivalTime = new Date(timeStamp);
+                    let minutesUntil = Math.floor((timeStamp - now) / 60000);
+                    if (minutesUntil >= 0) {
+                        let scheduleItem = {};
+                        let direction = stopTimeUpdate.stopId[stopTimeUpdate.stopId.length - 1];
+                        scheduleItem.routeId = tripUpdate.tripUpdate.trip.routeId;
+                        scheduleItem.minutesUntil = minutesUntil;
+                        scheduleItem.direction = direction;
+                        scheduleItem.timeStamp = timeStamp;
+                        scheduleItem.arrivalTime = `${arrivalTime.getHours()}:${arrivalTime.getMinutes()}`;
+                        arrivals.push(scheduleItem);
+                    }
+                }
+            }
+        }
+        // console.log(arrivals);
+
+        arrivals.sort((a, b) => (a.timeStamp > b.timeStamp) ? 1: -1);
+        callback(arrivals);
     });
     // sort the trip updates
     // prepare the schedule array

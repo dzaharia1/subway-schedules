@@ -31,7 +31,7 @@ app.get('/', (req, res) => {
   });
 });
 
-app.get('/:stopid/:service', (req, res) => {
+app.get('/web/:stopid/:service', (req, res) => {
   console.log("starting get");
   gtfs.getStationSchedule(req.params.stopid, req.params.service, () => {
     let viewData = {};
@@ -71,10 +71,16 @@ app.get('/tripUpdates', (req, res) => {
   res.json(gtfs.tripUpdates);
 });
 
+app.get('/arrivals/:stopid', (req, res) => {
+  gtfs.getStationSchedule(req.params.stopid, (schedule) => {
+    res.json(schedule);
+  });
+});
+
 app.get('/arrivals/:stopid/:service', (req, res) => {
   // res.json(gtfs.getStationSchedule(req.params.stopId, req.params.service));
-  gtfs.getStationSchedule(req.params.stopid, req.params.service, () => {
-    res.json(gtfs.arrivals);
+  gtfs.getStationSchedule(req.params.stopid, (schedule) => {
+    res.json(schedule.filter(obj => obj.routeId === req.params.service));
   });
 });
 

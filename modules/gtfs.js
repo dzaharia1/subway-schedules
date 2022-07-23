@@ -36,8 +36,6 @@ const requestSettings = {
 
 setUpStations();
 setUpRoutes();
-// // getStationSchedule("A24", "ACE");
-// getStationSchedule("A24");
 
 function setUpStations() {
     console.log('Setting up stations');

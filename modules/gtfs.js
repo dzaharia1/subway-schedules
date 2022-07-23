@@ -68,8 +68,8 @@ function setUpRoutes() {
             routeObject.routeId = route[1];
             routeObject.routeName = route[2];
             routeObject.routeLongName = route[3];
-            routeObject.color = `#${route[7]}`;
-            routeObject.textColor = `#${route[8]}`;
+            routeObject.color = `${route[7]}`;
+            routeObject.textColor = `${route[8]}`;
             routes.push(routeObject);
         }
         routes.pop();
@@ -109,7 +109,6 @@ function getStationSchedule(stopId, service, callback) {
                     let arrivalTime = new Date(timeStamp);
                     let now = Date.now();
                     let minutesUntil = Math.floor((timeStamp - now) / 60000);
-                    scheduleItem.tripId = tripId;
                     scheduleItem.arrivalTime = `${arrivalTime.getHours()}:${arrivalTime.getMinutes()}`;
                     scheduleItem.routeId = tripUpdate.tripUpdate.trip.routeId;
                     scheduleItem.minutesUntil = minutesUntil;

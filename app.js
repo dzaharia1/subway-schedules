@@ -71,7 +71,7 @@ app.get('/tripUpdates', (req, res) => {
   res.json(gtfs.tripUpdates);
 });
 
-app.get('/schedule/:stopid/:service', (req, res) => {
+app.get('/arrivals/:stopid/:service', (req, res) => {
   // res.json(gtfs.getStationSchedule(req.params.stopId, req.params.service));
   gtfs.getStationSchedule(req.params.stopid, req.params.service, () => {
     res.json(gtfs.arrivals);

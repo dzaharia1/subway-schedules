@@ -15,11 +15,11 @@
 			for (route of routes) {
 				if (route.routeId == arrivals[i].routeId) {
 					routeColor = route.color;
-					routeTextColor = route.textColor;
+					routeTextColor = route.textColor || '000000';
 				}
 			} %>
 			<li>
-				<h3 style="background-color: <%= routeColor %>; color: <%= routeTextColor %>"><%= arrivals[i].routeId %></h3>
+				<h3 style="background-color: #<%= routeColor %>; color: #<%= routeTextColor %>"><%= arrivals[i].routeId %></h3>
 				<p><% if (arrivals[i].direction == "N") { %>Northbound<%} else { %>Southbound<%} %></p>
 				<p><%= arrivals[i].minutesUntil %> min</p>
 			</li>

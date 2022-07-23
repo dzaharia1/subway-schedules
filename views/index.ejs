@@ -2,9 +2,10 @@
 	<%- include('partials/_header') %>
 
 <main>
+	<h1><%= thisStation.name %></h1>
 	<select name="Stations" id="stop-selector">
 		<% for (station of stations) { %>
-			<option value="<%= station.stopId %>"><%= station.name %> (<% station.lines.forEach(item => { %>
+			<option value="<%= station.stopIds[0] %>"><%= station.name %> (<% station.lines.forEach(item => { %>
 				<%= item %>, 
 			<% }) %>)</option>
 		<% } %>

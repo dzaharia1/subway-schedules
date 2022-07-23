@@ -138,7 +138,7 @@ function getStationSchedule(stopId, callback) {
         console.log(now);
         for (let tripUpdate of tripUpdates) {
             for (let stopTimeUpdate of tripUpdate.tripUpdate.stopTimeUpdate) {
-                if (station.stopIds.includes(stopTimeUpdate.stopId.substr(0, 3))) {
+                if (station.stopIds.includes(stopTimeUpdate.stopId.substr(0, 3)) && stopTimeUpdate.arrival) {
                     console.log(stopTimeUpdate);
                     let timeStamp = parseInt(stopTimeUpdate.arrival.time.low) * 1000;
                     let arrivalTime = new Date(timeStamp);

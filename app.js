@@ -34,6 +34,7 @@ app.get('/', (req, res) => {
 app.get('/web/:stopid/:service', (req, res) => {
   gtfs.getStationSchedule(req.params.stopid, (schedule) => {
     let viewData = {};
+    viewData.thisStation = gtfs.stations.find(obj => obj.stopIds.includes(req.params.stopId));
     viewData.stations = gtfs.stations;
     viewData.routes = gtfs.routes;
     viewData.arrivals = schedule.filter(obj => obj.routeId === req.params.service);
@@ -45,9 +46,11 @@ app.get('/web/:stopid/:service', (req, res) => {
 app.get('/web/:stopid', (req, res) => {
   gtfs.getStationSchedule(req.params.stopid, (schedule) => {
     let viewData = {};
+    viewData.thisStation = gtfs.stations.find(obj => obj.stopIds.includes(req.params.stopid));
     viewData.stations = gtfs.stations;
     viewData.routes = gtfs.routes;
     viewData.arrivals = schedule;
+    console.log(viewData.thisStation);
     res.render('index', viewData);
   });
 });

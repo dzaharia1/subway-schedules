@@ -32,13 +32,22 @@ app.get('/', (req, res) => {
 });
 
 app.get('/web/:stopid/:service', (req, res) => {
-  console.log("starting get");
-  gtfs.getStationSchedule(req.params.stopid, req.params.service, () => {
+  gtfs.getStationSchedule(req.params.stopid, (schedule) => {
     let viewData = {};
     viewData.stations = gtfs.stations;
     viewData.routes = gtfs.routes;
-    viewData.arrivals = gtfs.arrivals;
+    viewData.arrivals = schedule.filter(obj => obj.routeId === req.params.service);
     // res.json(viewData.stations);
+    res.render('index', viewData);
+  });
+});
+
+app.get('/web/:stopid', (req, res) => {
+  gtfs.getStationSchedule(req.params.stopid, (schedule) => {
+    let viewData = {};
+    viewData.stations = gtfs.stations;
+    viewData.routes = gtfs.routes;
+    viewData.arrivals = schedule;
     res.render('index', viewData);
   });
 });

@@ -161,42 +161,7 @@ function getStationSchedule(stopId, callback) {
         arrivals.sort((a, b) => (a.timeStamp > b.timeStamp) ? 1: -1);
         callback(arrivals);
     });
-    // sort the trip updates
-    // prepare the schedule array
-    // put the array through the callback function
 }
-
-// ~~~~~~~~~~ Get the schedule for a service of a station ~~~~~~~~~~~~~
-
-// function getStationSchedule(stopId, service, callback) {
-//     console.log(`Getting ${service} schedule for ${stopId}`);
-//     arrivals = [];
-
-//     getTripUpdates(service, () => {
-//         for (let tripUpdate of tripUpdates) {
-//             for (let stopTimeUpdate of tripUpdate.tripUpdate.stopTimeUpdate) {
-//                 if (stopTimeUpdate.stopId.indexOf(stopId) >= 0){
-//                     let scheduleItem = {};
-//                     let tripId = tripUpdate.tripUpdate.trip.tripId;
-//                     let timeStamp = parseInt(stopTimeUpdate.arrival.time.low) * 1000;
-//                     let arrivalTime = new Date(timeStamp);
-//                     let now = Date.now();
-//                     let minutesUntil = Math.floor((timeStamp - now) / 60000);
-//                     scheduleItem.arrivalTime = `${arrivalTime.getHours()}:${arrivalTime.getMinutes()}`;
-//                     scheduleItem.routeId = tripUpdate.tripUpdate.trip.routeId;
-//                     scheduleItem.minutesUntil = minutesUntil;
-//                     scheduleItem.direction = tripId.substring(tripId.length - 1, tripId.length);
-//                     if (scheduleItem.minutesUntil >= 0) {
-//                         arrivals.push(scheduleItem);
-//                     }
-//                 }
-//             }
-//         }
-//         arrivals.sort((a, b) => (a.minutesUntil > b.minutesUntil) ? 1 : -1);
-//         exports.arrivals = arrivals;
-//         if (callback) { callback() }
-//     });
-// }
 
 function getVehicleFromTripID (tripId) {
   for (let vehicle of vehicles) {

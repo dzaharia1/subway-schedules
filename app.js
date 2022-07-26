@@ -26,7 +26,6 @@ app.get('/', (req, res) => {
     viewData.stations = gtfs.stations;
     viewData.routes = gtfs.routes;
     viewData.arrivals = gtfs.arrivals;
-    console.log(arrivals);
     res.render('index', viewData);
   });
 });
@@ -50,7 +49,6 @@ app.get('/web/:stopid', (req, res) => {
     viewData.stations = gtfs.stations;
     viewData.routes = gtfs.routes;
     viewData.arrivals = schedule;
-    console.log(viewData.thisStation);
     res.render('index', viewData);
   });
 });

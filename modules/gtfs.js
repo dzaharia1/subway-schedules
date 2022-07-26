@@ -8,8 +8,6 @@ const cons = require('consolidate');
 let stationsFile = path.join(__dirname, '../agencyInfo/stations.txt');
 let routesFile =  path.join(__dirname, '../agencyInfo/routes.txt');
 
-// let tripUpdates = [];
-let arrivals = [];
 let routes = [];
 let stations = [];
 
@@ -124,7 +122,6 @@ function getStationSchedule(stopId, callback) {
 
     getTripUpdates(stationServices, tripUpdates, () => {
         let now = Date.now();
-        console.log(now);
         for (let tripUpdate of tripUpdates) {
             for (let stopTimeUpdate of tripUpdate.tripUpdate.stopTimeUpdate) {
                 if (station.stopId.includes(stopTimeUpdate.stopId.substr(0, 3)) && stopTimeUpdate.arrival) {
@@ -144,7 +141,6 @@ function getStationSchedule(stopId, callback) {
                 }
             }
         }
-        // console.log(arrivals);
 
         arrivals.sort((a, b) => (a.timeStamp > b.timeStamp) ? 1: -1);
         callback(arrivals);

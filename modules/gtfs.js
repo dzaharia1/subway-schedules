@@ -51,6 +51,7 @@ function setUpStations() {
                 stationObject.lines.sort((a, b) => (a > b) ? 1 : -1);
                 stations.push(stationObject);
             }
+            console.log(stations[20].lines);
         } else {
             console.error(err);
         }

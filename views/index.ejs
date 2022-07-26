@@ -2,13 +2,7 @@
 	<%- include('partials/_header') %>
 
 <main>
-	<h1><%= thisStation.name %></h1>
-	<select name="Stations" id="stop-selector">
-		<% for (station of stations) { %>
-			<option value="<%= station.stopId %>" <% if (station.stopId === thisStation.stopId) { %>selected<% } %>><%= station.name %> (<% station.lines.forEach(item => { %>
-				<%= item %>, <% }) %>)</option>
-		<% } %>
-	</select>
+	<%- include('partials/_stationselector') %>
 	<ul>
 		<% for (let i = 0; i < 6; i ++) {
 			let routeColor, routeTextColor;
@@ -18,8 +12,8 @@
 					routeTextColor = route.textColor || '000000';
 				}
 			} %>
-			<li>
-				<h3 style="background-color: #<%= routeColor %>; color: #<%= routeTextColor %>"><%= arrivals[i].routeId %></h3>
+			<li class="arrival">
+				<h3 line="<%= arrivals[i].routeId %>"><%= arrivals[i].routeId %></h3>
 				<p><% if (arrivals[i].direction == "N") { %>Northbound<%} else { %>Southbound<%} %></p>
 				<p><%= arrivals[i].minutesUntil %> min</p>
 			</li>

@@ -27,7 +27,7 @@ let feeds = {
 const requestSettings = {
     method: 'GET',
     headers: {
-        "x-api-key": 'NaAY1FHNnu7I49kZeb681az1hn7YW4z68zwnnN8X'
+        "x-api-key": process.env.MTA_API_KEY
     },
     encoding: null
 };
@@ -51,7 +51,7 @@ function setUpStations() {
                 stationObject.lines.sort((a, b) => (a > b) ? 1 : -1);
                 stations.push(stationObject);
             }
-            console.log(stations[20].lines);
+            
         } else {
             console.error(err);
         }

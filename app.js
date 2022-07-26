@@ -21,11 +21,12 @@ app.host = app.set('host', process.env.HOST || localhost);
 app.port = app.set('port', process.env.PORT || localport);
 
 app.get('/', (req, res) => {
-  gtfs.getStationSchedule(trackingStation, trackingService, () => {
+  gtfs.getStationSchedule('R14', (schedule) => {
     let viewData = {};
+    viewData.thisStation = gtfs.stations.find(obj => obj.stopId.includes('R14'));
     viewData.stations = gtfs.stations;
     viewData.routes = gtfs.routes;
-    viewData.arrivals = gtfs.arrivals;
+    viewData.arrivals = schedule;
     res.render('index', viewData);
   });
 });

@@ -4,9 +4,8 @@
     top: 4rem;
     left: 0;
     right: 0;
-    height: calc(100vh - 4rem);
     padding: calc($padding-primary/2) $padding-primary $padding-primary;
-    background: transparentize($background-blue, .97);
+    background: transparentize($background-blue, .9);
     backdrop-filter: blur(2px);
     display: none;
 

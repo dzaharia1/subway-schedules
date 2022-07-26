@@ -1,13 +1,16 @@
 <input type="text" placeholder="<%= thisStation.name %>" class="station-selector__search-input">
-<ul class="station-selector">
-    <% for (let station of stations) { %>
-        <li class="station-selector__station" data-name="<%=station.name%>" data-stopid=<%=station.stopId%>>
-            <a href="/web/<%=station.stopId%>">
+<div class="station-selector">
+    <ul class="station-selector__selection-indicator"></ul>
+    <ul class="station-selector__list">
+        <% for (let station of stations) { %>
+            <li class="station-selector__station" data-name="<%=station.name%>" data-stopid=<%=station.stopId%>>
+                <input type="checkbox">
                 <p><%=station.name%></p>
                 <% for (line of station.lines) { %>
                     <span class="station-selector__station-line" line=<%=line[0]%>><%=line%></span>
                 <% } %>
-            </a>
-        </li>
-    <% } %>
-</ul>
+            </li>
+        <% } %>
+    </ul>
+    <a class="station-selector__submit" href="/web">Get arrivals</a>
+</div>

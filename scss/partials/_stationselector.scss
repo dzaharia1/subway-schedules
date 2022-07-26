@@ -4,15 +4,23 @@
     top: 4rem;
     left: 0;
     right: 0;
-    padding: $padding-primary/2 $padding-primary $padding-primary;
-    background: transparentize($background-blue, .9);
+    height: calc(100vh - 4rem);
+    padding: calc($padding-primary/2) $padding-primary $padding-primary;
+    background: transparentize($background-blue, .97);
     backdrop-filter: blur(2px);
     display: none;
+
+    &__list {
+        @extend %vertical-start;
+        width: 100%;
+        flex: 1;
+        overflow-y: scroll;
+    }
 
     &__search-input {
         width: 100%;
         background-color: $background-blue;
-        color: $white;
+        color: $primary-white;
 
         border: none;
         padding: 0;
@@ -22,7 +30,7 @@
         font-weight: 600;
 
         &::placeholder {
-            color: $white;
+            color: $primary-white;
             opacity: 1;
             padding: 0;
             margin: 0;
@@ -34,15 +42,14 @@
         }
     }
 
-    &__station {
-        width: 100%;
 
-        a {
-            @extend %horizontal-center;
-            width: 100%;
-            color: $white;
-            text-decoration: none;
-            font-size: .85rem;
+    &__station,
+    &__selection-indicator-item {
+        width: 100%;
+        cursor: pointer;
+        
+        input[type="checkbox"] {
+            margin-right: 1rem;;
         }
         
         p {
@@ -50,7 +57,7 @@
             font-weight: 600
         }
 
-        &-line {
+        span {
             @extend %horizontal-center;
             justify-content: center;
             font-weight: 600;
@@ -59,6 +66,45 @@
             height: 1.25rem;
             margin-right: .3rem;
             font-size: .85rem;;
+        }
+    }
+
+    &__selection-indicator {
+        @extend %horizontal-center;
+        align-items: flex-start;
+        width: 100%;
+        flex-wrap: wrap;
+        margin-bottom: .5rem;
+        
+        &-item {
+            @extend %horizontal-center;
+            color: $primary-white;
+            width: auto;
+            align-self: flex-start;
+            background-color: $secondary-blue;
+            padding: .25rem .5rem;
+            border-radius: 4px;
+            border: 1px $tertiary-blue solid;
+            margin-bottom: .35rem;
+            margin-right: .25rem;
+        }
+    }
+
+    &__submit {
+        @extend %horizontal-start;
+        justify-content: flex-start;
+        width: 100%;
+        padding: 1rem 0;
+        background: none;
+        border: none;
+        color: $primary-white;
+        font-size: 1rem;
+        font-weight: 600;
+        border-bottom: 4px $primary-white solid;
+
+        &[href="/"] {
+            color: transparentize($primary-white, .6);
+            border-color: transparentize($primary-white, .6);
         }
     }
 }

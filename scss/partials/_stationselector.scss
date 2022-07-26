@@ -4,7 +4,7 @@
     top: 4rem;
     left: 0;
     right: 0;
-    padding: $padding-primary/2 $padding-primary $padding-primary;
+    padding: calc($padding-primary/2) $padding-primary $padding-primary;
     background: transparentize($background-blue, .9);
     backdrop-filter: blur(2px);
     display: none;
@@ -12,7 +12,7 @@
     &__search-input {
         width: 100%;
         background-color: $background-blue;
-        color: $white;
+        color: $primary-white;
 
         border: none;
         padding: 0;
@@ -22,7 +22,7 @@
         font-weight: 600;
 
         &::placeholder {
-            color: $white;
+            color: $primary-white;
             opacity: 1;
             padding: 0;
             margin: 0;
@@ -40,7 +40,7 @@
         a {
             @extend %horizontal-center;
             width: 100%;
-            color: $white;
+            color: $primary-white;
             text-decoration: none;
             font-size: .85rem;
         }

@@ -1,6 +1,8 @@
 @import 'scaffolding/utilities';
 @import 'scaffolding/type';
 @import 'scaffolding/colors';
+@import 'scaffolding/variables';
+@import 'partials/stationselector';
 
 * {
 	box-sizing: border-box;
@@ -17,9 +19,9 @@ a {
 }
 
 body {
-	font-family: Helvetica;
-	background-color: #11111c;
-	color: white;
+	@extend %helvetica;
+	background-color: $background-blue;
+	color: $primary-white;
 	padding: 24px;
 }
 

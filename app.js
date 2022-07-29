@@ -10,7 +10,6 @@ let localport = '3333';
 let localhost = 'http://localhost';
 
 let trackingStation = 'A24';
-let trackingService = 'ACE';
 
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -21,13 +20,14 @@ app.host = app.set('host', process.env.HOST || localhost);
 app.port = app.set('port', process.env.PORT || localport);
 
 app.get('/', (req, res) => {
-  gtfs.getStationSchedule('R14', (schedule) => {
+  gtfs.getStationSchedule(trackingStation, (schedule) => {
     let viewData = {};
     viewData.thisStation = gtfs.stations.find(obj => obj.stopId.includes('R14'));
     viewData.stations = gtfs.stations;
     viewData.routes = gtfs.routes;
     viewData.arrivals = schedule;
-    res.render('index', viewData);
+    // res.render('index', viewData);
+    res.send(JSON.stringify(viewData.arrivals.slice(0, 8)));
   });
 });
 

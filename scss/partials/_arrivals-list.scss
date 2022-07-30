@@ -1,0 +1,30 @@
+.arrivals {
+    @extend %vertical-start;
+    width: 100%;
+    list-style: none;
+    flex: 1;
+    overflow-y: scroll;
+
+    &__item {
+        @extend %horizontal-center;
+        margin-bottom: 1rem;
+
+        .warn {
+            color: $orange-bdfm;
+        }
+
+        h3 {
+            @extend %horizontal-center;
+            justify-content: center;
+            align-items: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: .25rem;
+        }
+
+        p {
+            margin-right: .5rem;
+        }
+    }
+}

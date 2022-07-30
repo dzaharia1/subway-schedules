@@ -4,10 +4,18 @@
     top: 4rem;
     left: 0;
     right: 0;
+    bottom: 4rem;
     padding: calc($padding-primary/2) $padding-primary $padding-primary;
     background: transparentize($background-blue, .9);
     backdrop-filter: blur(2px);
     display: none;
+
+    &__list {
+        @extend %vertical-start;
+        width: 100%;
+        flex: 1;
+        overflow-y: scroll;
+    }
 
     &__search-input {
         width: 100%;
@@ -16,7 +24,7 @@
 
         border: none;
         padding: 0;
-        margin: 0 0 1rem 0;
+        margin: 0 0 .75rem 0;
 
         font-size: 2rem;
         font-weight: 600;
@@ -32,33 +40,84 @@
             background: none;
             outline: none;
         }
+
+        &::after {
+            content: '';
+            width: 24px;
+            height: 24px;
+            background: none;
+            background-image: url("../../img/searchicon.png");
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-color: salmon;
+
+            position: absolute;
+            top: 4px;
+            right: 4px;
+
+        }
     }
 
-    &__station {
-        width: 100%;
 
-        a {
-            @extend %horizontal-center;
-            width: 100%;
-            color: $primary-white;
-            text-decoration: none;
-            font-size: .85rem;
+    &__station,
+    &__selection-indicator-item {
+        @extend %horizontal-center;
+        width: 100%;
+        cursor: pointer;
+        margin-bottom: 1.25rem;
+        
+        input[type="checkbox"] {
+            margin-right: 1rem;;
         }
         
-        p {
-            margin-right: .5rem;
+        label {
+            margin-right: .25rem;
             font-weight: 600
         }
 
-        &-line {
+        span {
             @extend %horizontal-center;
             justify-content: center;
             font-weight: 600;
             border-radius: 50%;
             width: 1.25rem;
             height: 1.25rem;
-            margin-right: .3rem;
+            margin-left: .25rem;
             font-size: .85rem;;
+        }
+    }
+
+    &__selection-indicator {
+        @extend %horizontal-center;
+        align-items: flex-start;
+        width: 100%;
+        flex-wrap: wrap;
+        margin-bottom: 1.25rem;
+        
+        li {
+            margin-bottom: .35rem;
+            margin-right: .25rem;
+        }
+        
+        &-item {
+            @extend %horizontal-center;
+            display: none;
+            color: $primary-white;
+            width: auto;
+            align-self: flex-start;
+            background-color: $secondary-blue;
+            padding: .25rem .5rem;
+            border-radius: 4px;
+            border: 1px $tertiary-blue solid;
+            margin: 0 .25rem .25rem 0;
+
+            &--active {
+                display: flex;
+            }
+
+            p {
+                margin-right: .25rem;
+            }
         }
     }
 }

@@ -99,6 +99,7 @@ function getTripUpdates (services, tripUpdatesArray, callback) {
     request(requestSettings, (error, response, body) => {
         if (!error && response.statusCode == 200) {
             let gtfsData = GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(body);
+            
             for (let entity of gtfsData.entity) {
                 if (entity.tripUpdate) { tripUpdatesArray.push(entity); }
             }

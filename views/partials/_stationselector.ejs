@@ -1,10 +1,27 @@
-<input type="text" placeholder="<%= thisStation.name %>" class="station-selector__search-input">
+<input type="text" placeholder="Search" class="station-selector__search-input">
+<ul class="station-selector__selection-indicator">
+    <!-- <% for (let station of trackedStations) { %>
+        <button class="station-selector__selection-indicator-item" data-name="<%= station.name %>" data-stopid="<%= station.stopId %>">
+            <p><%= station.name %></p>
+            <% for (let line of station.lines) { %>
+                <span line="<%= line %>"><%= line %></span>
+            <% } %>
+        </button>
+    <% } %> -->
+    <% for (let station of stations) { %>
+        <button class="station-selector__selection-indicator-item <% if (trackedStations.find(obj => obj.stopId === station.stopId)) { %> station-selector__selection-indicator-item--active <% } %>"" data-name="<%= station.name %>">
+            <p><%= station.name %></p>
+            <% for (let line of station.lines) { %>
+                <span line="<%= line %>"><%= line %></span>
+            <% } %>
+        </button>
+    <% } %>
+</ul>
 <div class="station-selector">
-    <ul class="station-selector__selection-indicator"></ul>
     <ul class="station-selector__list">
         <% for (let station of stations) { %>
             <li class="station-selector__station" data-name="<%=station.name%>" data-stopid=<%=station.stopId%>>
-                <input type="checkbox">
+                <input type="checkbox" <% if (trackedStations.find(obj => obj.stopId === station.stopId)) { %>checked<% } %>
                 <p><%=station.name%></p>
                 <% for (line of station.lines) { %>
                     <span class="station-selector__station-line" line=<%=line[0]%>><%=line%></span>
@@ -12,5 +29,6 @@
             </li>
         <% } %>
     </ul>
-    <a class="station-selector__submit" href="/web">Get arrivals</a>
+    <a class="station-selector__submit" href="/web?stops=">Preview</a>
+    <button class="station-selector__submit">Save to display</button>
 </div>

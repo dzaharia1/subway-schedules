@@ -106,7 +106,7 @@ function getTripUpdates (services, tripUpdatesArray, callback) {
             if (services.length > 0) {
                 getTripUpdates(services, tripUpdatesArray, callback);
             } else {
-                callback();
+                callback(tripUpdatesArray);
             }
         } else {
             console.log(error);
@@ -114,16 +114,15 @@ function getTripUpdates (services, tripUpdatesArray, callback) {
     });
 }
 
-function getStationSchedule(stopId, callback) {
+// get the arrivals for each of the stations with stop IDs in the stopIds parameter
+function getStationSchedules(stopIds, tripUpdatesArray, arrivalsArray, callback) {
     // get the trip updates for each of the services of the station
-    let station = stations.find(obj => obj.stopId.includes(stopId));
-    let stationServices = getFeedsForStation(stopId);
-    let tripUpdates = [];
-    let arrivals = [];
+    let station = stations.find(obj => obj.stopId.includes(stopIds[0]));
+    let stationServices = getFeedsForStation(stopIds[0]);
 
-    getTripUpdates(stationServices, tripUpdates, () => {
+    getTripUpdates(stationServices, tripUpdatesArray, (tripUpdatesArray) => {
         let now = Date.now();
-        for (let tripUpdate of tripUpdates) {
+        for (let tripUpdate of tripUpdatesArray) {
             for (let stopTimeUpdate of tripUpdate.tripUpdate.stopTimeUpdate) {
                 if (station.stopId.includes(stopTimeUpdate.stopId.substr(0, 3)) && stopTimeUpdate.arrival) {
                     let timeStamp = parseInt(stopTimeUpdate.arrival.time.low) * 1000;
@@ -137,14 +136,19 @@ function getStationSchedule(stopId, callback) {
                         scheduleItem.direction = direction;
                         scheduleItem.timeStamp = timeStamp;
                         scheduleItem.arrivalTime = `${arrivalTime.getHours()}:${arrivalTime.getMinutes()}`;
-                        arrivals.push(scheduleItem);
+                        arrivalsArray.push(scheduleItem);
                     }
                 }
             }
         }
 
-        arrivals.sort((a, b) => (a.timeStamp > b.timeStamp) ? 1: -1);
-        callback(arrivals);
+        if (stopIds.length > 1) {
+            const [ a, ...others ] = stopIds;
+            getStationSchedules(others, tripUpdatesArray, arrivalsArray, callback)
+        } else {
+            arrivalsArray.sort((a, b) => (a.timeStamp > b.timeStamp) ? 1: -1);
+            callback(arrivalsArray);
+        }
     });
 }
 
@@ -196,5 +200,5 @@ exports.routes = routes;
 exports.setUpStations = setUpStations;
 exports.setUpRoutes = setUpRoutes;
 exports.getTripUpdates = getTripUpdates;
-exports.getStationSchedule = getStationSchedule;
+exports.getStationSchedules = getStationSchedules;
 exports.getVehicleFromTripID = getVehicleFromTripID;

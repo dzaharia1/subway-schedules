@@ -3,37 +3,58 @@ let arrivalItems;
 let stationSelectorItems;
 let stationSelector;
 let stationSearch;
-let stationsSubmit;
+let stationPreview;
 let selectionIndicator;
 let stationName;
+let setSignStationsButton;
+let trackedStations = [];
 
-var readyFunction = function() {
+let readyFunction = function() {
 	stopSelector = document.querySelector('#stop-selector');
 	arrivalItems = document.querySelectorAll('.arrival');
 	stationSelector = document.querySelector('.station-selector__list');
 	stationSelectorItems = document.querySelectorAll('.station-selector__station');
 	stationSearch = document.querySelector('.station-selector__search-input');
 	stationName = stationSearch.placeholder;
-	stationsSubmit = document.querySelector('.station-selector__submit');
+	stationPreview = document.querySelector('.station-selector__submit');
 	selectionIndicator = document.querySelector('.station-selector__selection-indicator');
 
-	for (let station of stationSelectorItems) {
-		station.parentNode.removeChild(station);
+	for (let stationSelector of stationSelectorItems) {
+		stationSelector.parentNode.removeChild(stationSelector);
 		let stopid = station.getAttribute(`data-stopid`);
 		let checkbox = station.querySelector('input');
 		
-		station.addEventListener('click', (e) => {
-			let checkbox = station.querySelector('input[type="checkbox"]');
+		stationSelector.addEventListener('click', (e) => {
+			let checkbox = stationSelector.querySelector('input[type="checkbox"]');
 			if (checkbox.checked) {
 				checkbox.checked = false;
 				let indicator = selectionIndicator.querySelector(`[data-stopid="${stopid}"]`);
 				indicator.parentNode.removeChild(indicator);
-				stationsSubmit.href.replace(`/${stopid}`, '');
+				console.log(`removing ${stopid},`);
+				let newUrl = stationPreview.href;
+				newUrl.replace(`${stopid},`, '');
+				stationSelector.parentNode.style.top = `${selectionIndicator.getBoundingClientRect().bottom}px`;
+				stationPreview.href = newUrl;
 			} else {
-				setSelectedStationIndicator(station);
-				stationsSubmit.href += `/${stopid}`;
+				setSelectedStationIndicator(stationSelector);
+				stationPreview.href += `${stopid},`;
 				checkbox.checked = true;
+				stationSelector.parentNode.style.top = `${selectionIndicator.getBoundingClientRect().bottom}px`;
+				console.log(selectionIndicator.getBoundingClientRect().bottom);
 			}
+		});
+	}
+
+	for (let indicator of selectionIndicator.querySelectorAll('button')) {
+		trackedStations.push(indicator.getAttribute('data-stopid'));
+
+		indicator.addEventListener('click', () => {
+			let stopid = indicator.getAttribute(`data-stopid`);
+			let stationSelectorItem = getStationSelectorItem(stopid);
+			stationSelectorItem.querySelector('input').checked = false;
+			indicator.parentNode.removeChild(indicator);
+			stationPreview.href.replace(`${stopid},`, '');
+			stationSelector.parentNode.style.top = `${selectionIndicator.getBoundingClientRect().bottom}px`;
 		});
 	}
 
@@ -59,6 +80,7 @@ var readyFunction = function() {
 	stationSearch.addEventListener('input', (e) => {
 		let searchTerm = stationSearch.value.toLowerCase();
 		stationSelector.innerHTML = '';
+		stationSelector.parentNode.style.top = `${selectionIndicator.getBoundingClientRect().bottom}px`;
 
 		for (let station of stationSelectorItems) {
 			let stationName = station.getAttribute('data-name').toLowerCase();
@@ -73,32 +95,38 @@ var readyFunction = function() {
 			stationSelector.parentNode.style.display = 'none';
 		}
 	});
+
+	stationPreview.addEventListener('click', (e) => {
+		// stationPreview.href = stationPreview.href.subString(0, stationPreview.href.length - 1);
+		e.preventDefault();
+		window.location.href = stationPreview.href.substring(0, stationPreview.href.length - 1);
+	});
 }
 
 function setSelectedStationIndicator(station) {
-	let newNode = document.createElement('button');
+	let indicator = document.createElement('button');
 	let name = station.getAttribute('data-name');
 	let stopid = station.getAttribute('data-stopid');
 	let lines = station.querySelectorAll('.station-selector__station-line');
-	newNode.classList.add('station-selector__selection-indicator-item')
+	indicator.classList.add('station-selector__selection-indicator-item')
 
-	newNode.setAttribute('data-name', name);
-	newNode.setAttribute('data-stopid', stopid);
-	newNode.innerHTML = `<p>${name}</p>`;
+	indicator.setAttribute('data-name', name);
+	indicator.setAttribute('data-stopid', stopid);
+	indicator.innerHTML = `<p>${name}</p>`;
 	for (let line of lines) {
-		newNode.innerHTML += `<span line="${line.innerText}">${line.innerText}</span>`
+		indicator.innerHTML += `<span line="${line.innerText}">${line.innerText}</span>`
 	}
 
-	newNode.addEventListener('click', (e) => {
-		let stationSelectorItem = getStationItem(stopid);
+	indicator.addEventListener('click', (e) => {
+		let stationSelectorItem = getStationSelectorItem(stopid);
 		stationSelectorItem.querySelector('input').checked = false;
-		newNode.parentNode.removeChild(newNode);
+		indicator.parentNode.removeChild(indicator);
 	});
 
-	selectionIndicator.appendChild(newNode);
+	selectionIndicator.appendChild(indicator);
 }
 
-function getStationItem(stopid) {
+function getStationSelectorItem(stopid) {
 	for (let item of stationSelectorItems) {
 		if (item.getAttribute('data-stopid') === stopid) {
 			return item;

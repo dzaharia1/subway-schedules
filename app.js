@@ -9,7 +9,7 @@ let app = express();
 let localport = '3333';
 let localhost = 'http://localhost';
 
-let trackingStations = ['A25'];
+let trackingStations = ['A25', '126', 'R14'];
 
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));

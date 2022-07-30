@@ -9,7 +9,7 @@
         </button>
     <% } %> -->
     <% for (let station of stations) { %>
-        <button class="station-selector__selection-indicator-item <% if (trackedStations.find(obj => obj.stopId === station.stopId)) { %> station-selector__selection-indicator-item--active <% } %>"" data-name="<%= station.name %>">
+        <button class="station-selector__selection-indicator-item <% if (trackedStations.find(obj => obj.stopId === station.stopId)) { %> station-selector__selection-indicator-item--active <% } %>" id="<%= station.stopId %>" data-name="<%= station.name %>">
             <p><%= station.name %></p>
             <% for (let line of station.lines) { %>
                 <span line="<%= line %>"><%= line %></span>
@@ -20,15 +20,13 @@
 <div class="station-selector">
     <ul class="station-selector__list">
         <% for (let station of stations) { %>
-            <li class="station-selector__station" data-name="<%=station.name%>" data-stopid=<%=station.stopId%>>
-                <input type="checkbox" <% if (trackedStations.find(obj => obj.stopId === station.stopId)) { %>checked<% } %>
-                <p><%=station.name%></p>
+            <li class="station-selector__station" data-name="<%=station.name%>" id=<%=station.stopId%>>
+                <input type="checkbox" id="<%= station.stopId %>-check" <% if (trackedStations.find(obj => obj.stopId === station.stopId)) { %>checked<% } %>>
+                <label for="<%= station.stopId %>-check"><%=station.name%></label>
                 <% for (line of station.lines) { %>
                     <span class="station-selector__station-line" line=<%=line[0]%>><%=line%></span>
                 <% } %>
             </li>
         <% } %>
     </ul>
-    <a class="station-selector__submit" href="/web?stops=">Preview</a>
-    <button class="station-selector__submit">Save to display</button>
 </div>

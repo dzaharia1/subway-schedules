@@ -3,10 +3,9 @@ let arrivalItems;
 let stationSelectorItems;
 let stationSelector;
 let stationSearch;
-let stationPreview;
+let submitButton;
 let selectionIndicator;
 let stationName;
-let setSignStationsButton;
 let trackedStations = [];
 
 let readyFunction = function() {
@@ -16,44 +15,40 @@ let readyFunction = function() {
 	stationSelectorItems = document.querySelectorAll('.station-selector__station');
 	stationSearch = document.querySelector('.station-selector__search-input');
 	stationName = stationSearch.placeholder;
-	stationPreview = document.querySelector('.station-selector__submit');
+	submitButton = document.querySelector('.submit');
 	selectionIndicator = document.querySelector('.station-selector__selection-indicator');
 
-	for (let stationSelector of stationSelectorItems) {
-		stationSelector.parentNode.removeChild(stationSelector);
-		let stopid = station.getAttribute(`data-stopid`);
-		let checkbox = station.querySelector('input');
+	for (let stationSelectorItem of stationSelectorItems) {
+		stationSelector.removeChild(stationSelectorItem);
+		const checkbox = stationSelectorItem.querySelector('input');
 		
-		stationSelector.addEventListener('click', (e) => {
-			let checkbox = stationSelector.querySelector('input[type="checkbox"]');
-			if (checkbox.checked) {
-				checkbox.checked = false;
-				let indicator = selectionIndicator.querySelector(`[data-stopid="${stopid}"]`);
-				indicator.parentNode.removeChild(indicator);
-				console.log(`removing ${stopid},`);
-				let newUrl = stationPreview.href;
-				newUrl.replace(`${stopid},`, '');
-				stationSelector.parentNode.style.top = `${selectionIndicator.getBoundingClientRect().bottom}px`;
-				stationPreview.href = newUrl;
+		checkbox.addEventListener('change', () => {
+			const stopid = stationSelectorItem.getAttribute(`id`);
+			const indicator = document.querySelector(`button[id="${stopid}"]`);
+
+			if (!checkbox.checked) {
+				indicator.classList.remove('station-selector__selection-indicator-item--active');
+				trackedStations.splice(trackedStations.indexOf(stopid), 1);
 			} else {
-				setSelectedStationIndicator(stationSelector);
-				stationPreview.href += `${stopid},`;
-				checkbox.checked = true;
-				stationSelector.parentNode.style.top = `${selectionIndicator.getBoundingClientRect().bottom}px`;
-				console.log(selectionIndicator.getBoundingClientRect().bottom);
+				indicator.classList.add('station-selector__selection-indicator-item--active');
+				trackedStations.push(stopid);
 			}
+			stationSelector.parentNode.style.top = `${selectionIndicator.getBoundingClientRect().bottom}px`;
+			console.log(trackedStations);
 		});
 	}
 
 	for (let indicator of selectionIndicator.querySelectorAll('button')) {
-		trackedStations.push(indicator.getAttribute('data-stopid'));
+		if (indicator.classList.contains("station-selector__selection-indicator-item--active")) {
+			trackedStations.push(indicator.id);
+		}
 
 		indicator.addEventListener('click', () => {
-			let stopid = indicator.getAttribute(`data-stopid`);
-			let stationSelectorItem = getStationSelectorItem(stopid);
-			stationSelectorItem.querySelector('input').checked = false;
-			indicator.parentNode.removeChild(indicator);
-			stationPreview.href.replace(`${stopid},`, '');
+			let stationCheckbox = getStationCheckbox(indicator.id);
+			console.log(stationCheckbox);
+			stationCheckbox.checked = false;
+			indicator.classList.remove('station-selector__selection-indicator-item--active');
+			trackedStations.splice(trackedStations.indexOf(indicator.id), 1);
 			stationSelector.parentNode.style.top = `${selectionIndicator.getBoundingClientRect().bottom}px`;
 		});
 	}
@@ -96,11 +91,22 @@ let readyFunction = function() {
 		}
 	});
 
-	stationPreview.addEventListener('click', (e) => {
-		// stationPreview.href = stationPreview.href.subString(0, stationPreview.href.length - 1);
-		e.preventDefault();
-		window.location.href = stationPreview.href.substring(0, stationPreview.href.length - 1);
+	submitButton.addEventListener('click', (e) => {
+		let href = `/web?stops=`;
+		for (let station of trackedStations) {
+			href += `${station},`;
+		}
+
+		window.location.href = href.substring(0, href.length - 1);
 	});
+}
+
+function getStationCheckbox(stopid) {
+	for (let station of stationSelectorItems) {
+		if (station.id === stopid) {
+			return station.querySelector('input');
+		}
+	}
 }
 
 function setSelectedStationIndicator(station) {
@@ -124,14 +130,6 @@ function setSelectedStationIndicator(station) {
 	});
 
 	selectionIndicator.appendChild(indicator);
-}
-
-function getStationSelectorItem(stopid) {
-	for (let item of stationSelectorItems) {
-		if (item.getAttribute('data-stopid') === stopid) {
-			return item;
-		}
-	}
 }
 
 if (document.readyState != 'loading') {

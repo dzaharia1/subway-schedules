@@ -26,12 +26,19 @@ app.get('/', (req, res) => {
 });
 
 app.get('/web', (req, res) => {
-  let stopIds = req.query.stops.split(',');
-  gtfs.getStationSchedules(stopIds, [], [], (schedule) => {
+  // let stopIds = req.query.stops.split(',');
+
+  if (req.query.stops) {
+    trackingStations = req.query.stops.split(',');
+  }
+
+  console.log(trackingStations);
+
+  gtfs.getStationSchedules(trackingStations, [], [], (schedule) => {
     let viewData = {};
     // viewData.thisStation = gtfs.stations.find(obj => obj.stopId.includes(req.params.stopid));
     viewData.trackedStations = [];
-    for (let stopId of stopIds) {
+    for (let stopId of trackingStations) {
       viewData.trackedStations.push(gtfs.stations.find(obj => obj.stopId.includes(stopId)));
     }
     viewData.stations = gtfs.stations;
@@ -40,12 +47,6 @@ app.get('/web', (req, res) => {
     res.render('index', viewData);
   });
 });
-
-// app.get('/testroute', (req, res) => {
-//   let stops = JSON.parse(req.query.stops);
-//   console.log(stops);
-//   res.send(stops);
-// });
 
 app.get('/routes', (req, res) => {
   res.json(gtfs.routes);

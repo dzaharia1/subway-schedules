@@ -3,22 +3,24 @@
 
 <main>
 	<%- include('partials/_stationselector') %>
-	<ul>
-		<% for (let i = 0; i < 6; i ++) {
+	<ul class="arrivals">
+		<% for (let arrivalItem of arrivals) {
 			let routeColor, routeTextColor;
 			for (route of routes) {
-				if (route.routeId == arrivals[i].routeId) {
+				if (route.routeId == arrivalItem.routeId) {
 					routeColor = route.color;
 					routeTextColor = route.textColor || '000000';
 				}
 			} %>
-			<li class="arrival">
-				<h3 line="<%= arrivals[i].routeId %>"><%= arrivals[i].routeId %></h3>
-				<p><% if (arrivals[i].direction == "N") { %>Northbound<%} else { %>Southbound<%} %></p>
-				<p><%= arrivals[i].minutesUntil %> min</p>
+			<li class="arrivals__item">
+				<h3 line="<%= arrivalItem.routeId %>"><%= arrivalItem.routeId %></h3>
+				<p><% if (arrivalItem.direction == "N") { %>Northbound<%} else { %>Southbound<% } %></p>
+				<p><%= arrivalItem.minutesUntil %> min</p>
 			</li>
 		<% } %>
 	</ul>
+	<button class="submit" href="/web?stops=">Set stops</a>
+    
 </main>
 
 	<%- include('partials/_footer') %>

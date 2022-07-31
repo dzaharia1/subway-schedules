@@ -10,6 +10,7 @@ let localport = '3333';
 let localhost = 'http://localhost';
 
 let trackingStations = ['A25', '126', 'R14'];
+let minimumTime = 5;
 
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -20,7 +21,7 @@ app.host = app.set('host', process.env.HOST || localhost);
 app.port = app.set('port', process.env.PORT || localport);
 
 app.get('/', (req, res) => {
-  gtfs.getStationSchedules(trackingStations, [], [], (schedule) => {
+  gtfs.getStationSchedules(trackingStations, minimumTime, [], [], (schedule) => {
     res.json(schedule.slice(0, 10));
   });
 });
@@ -32,9 +33,7 @@ app.get('/web', (req, res) => {
     trackingStations = req.query.stops.split(',');
   }
 
-  console.log(trackingStations);
-
-  gtfs.getStationSchedules(trackingStations, [], [], (schedule) => {
+  gtfs.getStationSchedules(trackingStations, minimumTime, [], [], (schedule) => {
     let viewData = {};
     // viewData.thisStation = gtfs.stations.find(obj => obj.stopId.includes(req.params.stopid));
     viewData.trackedStations = [];
@@ -78,7 +77,7 @@ app.get('/tripUpdates', (req, res) => {
 
 app.get('/arrivals/:stopid/:service', (req, res) => {
   // res.json(gtfs.getStationSchedule(req.params.stopId, req.params.service));
-  gtfs.getStationSchedule(req.params.stopid, [], [], (schedule) => {
+  gtfs.getStationSchedule(req.params.stopid, minimumTime, [], [], (schedule) => {
     res.json(schedule.filter(obj => obj.routeId === req.params.service));
   });
 });

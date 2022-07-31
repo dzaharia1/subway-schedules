@@ -116,7 +116,10 @@ function getTripUpdates (services, tripUpdatesArray, callback) {
 }
 
 // get the arrivals for each of the stations with stop IDs in the stopIds parameter
-function getStationSchedules(stopIds, tripUpdatesArray, arrivalsArray, callback) {
+function getStationSchedules(stopIds, minimumTime, tripUpdatesArray, arrivalsArray, callback) {
+    console.log(stopIds);
+    console.log(`min time is ${minimumTime}`);
+
     // get the trip updates for each of the services of the station
     let station = stations.find(obj => obj.stopId.includes(stopIds[0]));
     let stationServices = getFeedsForStation(stopIds[0]);
@@ -129,7 +132,7 @@ function getStationSchedules(stopIds, tripUpdatesArray, arrivalsArray, callback)
                     let timeStamp = parseInt(stopTimeUpdate.arrival.time.low) * 1000;
                     let arrivalTime = new Date(timeStamp);
                     let minutesUntil = Math.floor((timeStamp - now) / 60000);
-                    if (minutesUntil >= 0) {
+                    if (minutesUntil >= minimumTime) {
                         let scheduleItem = {};
                         let direction = stopTimeUpdate.stopId[stopTimeUpdate.stopId.length - 1];
                         scheduleItem.routeId = tripUpdate.tripUpdate.trip.routeId;
@@ -145,7 +148,7 @@ function getStationSchedules(stopIds, tripUpdatesArray, arrivalsArray, callback)
 
         if (stopIds.length > 1) {
             const [ a, ...others ] = stopIds;
-            getStationSchedules(others, tripUpdatesArray, arrivalsArray, callback)
+            getStationSchedules(others, minimumTime, tripUpdatesArray, arrivalsArray, callback)
         } else {
             arrivalsArray.sort((a, b) => (a.timeStamp > b.timeStamp) ? 1: -1);
             callback(arrivalsArray);

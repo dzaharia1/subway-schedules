@@ -2,10 +2,6 @@
     width: 100%;
     margin-bottom: .75rem;
 
-    &--active .search-bar__close-button {
-        display: flex;
-    }
-
     // &::after {
     //     content: '';
     //     width: 24px;
@@ -45,7 +41,7 @@
         }
     }
 
-    &__close {
+    &__close-button {
         @extend %helvetica-medium;
         position: absolute;
         right: $padding-primary;
@@ -54,5 +50,9 @@
         color: $primary-white;
         border: none;
         display: none;
+
+        &--active {
+            display: block;
+        }
     }
 }

@@ -2,28 +2,30 @@ let stopSelector;
 let arrivalItems;
 let stationSelectorItems;
 let stationSelector;
-let stationSearch;
+let searchBarInput;
 let submitButton;
 let selectionIndicator;
 let stationName;
 let trackedStations = [];
+let searchBarClose;
 
 let readyFunction = function() {
 	stopSelector = document.querySelector('#stop-selector');
 	arrivalItems = document.querySelectorAll('.arrival');
 	stationSelector = document.querySelector('.station-selector__list');
 	stationSelectorItems = document.querySelectorAll('.station-selector__station');
-	stationSearch = document.querySelector('.station-selector__search-input');
-	stationName = stationSearch.placeholder;
+	searchBarInput = document.querySelector('.search-bar__input');
+	searchBarClose = document.querySelector('.search-bar__close-button');
+	stationName = searchBarInput.placeholder;
 	submitButton = document.querySelector('.submit');
 	selectionIndicator = document.querySelector('.station-selector__selection-indicator');
 
-	for (let stationSelectorItem of stationSelectorItems) {
-		stationSelector.removeChild(stationSelectorItem);
-		const checkbox = stationSelectorItem.querySelector('input');
+	for (let selector of stationSelectorItems) {
+		stationSelector.removeChild(selector);
+		const checkbox = selector.querySelector('input');
 		
 		checkbox.addEventListener('change', () => {
-			const stopid = stationSelectorItem.getAttribute(`id`);
+			const stopid = selector.getAttribute(`id`);
 			const indicator = document.querySelector(`button[id="${stopid}"]`);
 
 			if (!checkbox.checked) {
@@ -61,19 +63,9 @@ let readyFunction = function() {
 		}
 	}
 
-	stationSearch.addEventListener('focus', (e) => {
-		stationSearch.placeholder = '';
-	});
-
-	stationSearch.addEventListener('blur', (e) => {
-		if (stationSearch.value === '') {
-			stationSearch.placeholder = stationName;
-			stationSearch.value = '';
-		}
-	});
-
-	stationSearch.addEventListener('input', (e) => {
-		let searchTerm = stationSearch.value.toLowerCase();
+	searchBarInput.addEventListener('input', (e) => {
+		let searchTerm = searchBarInput.value.toLowerCase();
+		searchBarClose.classList.add('search-bar__close-button--active')
 		stationSelector.innerHTML = '';
 		stationSelector.parentNode.style.top = `${selectionIndicator.getBoundingClientRect().bottom}px`;
 
@@ -84,11 +76,18 @@ let readyFunction = function() {
 			}
 		}
 
-		if (stationSelector.innerHTML != '' || selectionIndicator.innerHTML != '') {
+		if (stationSelector.innerHTML != '') {
 			stationSelector.parentNode.style.display = 'flex';
 		} else {
 			stationSelector.parentNode.style.display = 'none';
 		}
+	});
+
+	searchBarClose.addEventListener('click', () => {
+		stationSelector.innerHTML = '';
+		searchBarInput.value = '';
+		stationSelector.parentNode.style.display = 'none';
+		searchBarClose.classList.remove('search-bar__close-button--active');
 	});
 
 	submitButton.addEventListener('click', (e) => {

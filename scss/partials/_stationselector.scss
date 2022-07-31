@@ -17,48 +17,6 @@
         overflow-y: scroll;
     }
 
-    &__search-input {
-        width: 100%;
-        background-color: $background-blue;
-        color: $primary-white;
-
-        border: none;
-        padding: 0;
-        margin: 0 0 .75rem 0;
-
-        font-size: 2rem;
-        font-weight: 600;
-
-        &::placeholder {
-            color: $primary-white;
-            opacity: 1;
-            padding: 0;
-            margin: 0;
-        }
-
-        &:focus {
-            background: none;
-            outline: none;
-        }
-
-        &::after {
-            content: '';
-            width: 24px;
-            height: 24px;
-            background: none;
-            background-image: url("../../img/searchicon.png");
-            background-repeat: no-repeat;
-            background-size: cover;
-            background-color: salmon;
-
-            position: absolute;
-            top: 4px;
-            right: 4px;
-
-        }
-    }
-
-
     &__station,
     &__selection-indicator-item {
         @extend %horizontal-center;

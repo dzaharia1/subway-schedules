@@ -7,9 +7,11 @@ const cons = require('consolidate');
 
 let stationsFile = path.join(__dirname, '../agencyInfo/stations.txt');
 let routesFile =  path.join(__dirname, '../agencyInfo/routes.txt');
+let tripsFile = path.join(__dirname, '../agencyInfo/trips.txt');
 
 let routes = [];
 let stations = [];
+let trips = [];
 
 let services = [ "ACE", "BDFM", "G", "JZ", "NQRW", "L", "1234566X7", "SI" ];
 
@@ -34,6 +36,7 @@ const requestSettings = {
 
 setUpStations();
 setUpRoutes();
+setUpTrips();
 
 function setUpStations() {
     console.log('Setting up stations');
@@ -93,6 +96,40 @@ function setUpRoutes() {
   });
 }
 
+function setUpTrips() {
+    console.log('Setting up trips');
+    fs.readFile(tripsFile, {encoding: 'utf8'}, (err, data) => {
+        if (!err) {
+            let rawData = CSVToArray(data, ',');
+            for (let trip of rawData) {
+                let tripObject = {};
+                tripObject.routeId = trip[0];
+                tripObject.tripId = trip[1];
+                tripObject.headsign = trip[3];
+                trips.push(tripObject);
+            }
+            trips.pop();
+        } else {
+            console.error(err);
+        }
+    });
+}
+
+function getHeadsignForTripId (tripId) {
+    let trip = trips.find(obj => obj.tripId.includes(tripId.substr(0, tripId.length - 1)));
+    if (trip) {
+        return trip.headsign;
+    } else {
+        switch (tripId[tripId.length  -1]) {
+            case 'N':
+                return 'Northbound';
+            case 'S':
+                return 'Southbound'
+        }
+        return tripId[tripId.length - 1];
+    }
+}
+
 function getTripUpdates (services, tripUpdatesArray, callback) {
     service = services[0];
     requestSettings.url = feeds[service];
@@ -127,6 +164,7 @@ function getStationSchedules(stopIds, minimumTime, tripUpdatesArray, arrivalsArr
     getTripUpdates(stationServices, tripUpdatesArray, (tripUpdatesArray) => {
         let now = Date.now();
         for (let tripUpdate of tripUpdatesArray) {
+            let headsign = getHeadsignForTripId(tripUpdate.tripUpdate.trip.tripId);
             for (let stopTimeUpdate of tripUpdate.tripUpdate.stopTimeUpdate) {
                 if (station.stopId.includes(stopTimeUpdate.stopId.substr(0, 3)) && stopTimeUpdate.arrival) {
                     let timeStamp = parseInt(stopTimeUpdate.arrival.time.low) * 1000;
@@ -139,6 +177,7 @@ function getStationSchedules(stopIds, minimumTime, tripUpdatesArray, arrivalsArr
                         scheduleItem.minutesUntil = minutesUntil;
                         scheduleItem.direction = direction;
                         scheduleItem.timeStamp = timeStamp;
+                        scheduleItem.headsign = headsign;
                         scheduleItem.arrivalTime = `${arrivalTime.getHours()}:${arrivalTime.getMinutes()}`;
                         arrivalsArray.push(scheduleItem);
                     }

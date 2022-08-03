@@ -35,7 +35,6 @@ app.get('/web', (req, res) => {
 
   gtfs.getStationSchedules(trackingStations, minimumTime, [], [], (schedule) => {
     let viewData = {};
-    // viewData.thisStation = gtfs.stations.find(obj => obj.stopId.includes(req.params.stopid));
     viewData.trackedStations = [];
     for (let stopId of trackingStations) {
       viewData.trackedStations.push(gtfs.stations.find(obj => obj.stopId.includes(stopId)));

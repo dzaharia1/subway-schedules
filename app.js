@@ -4,6 +4,7 @@ const cons = require('consolidate');
 const ejs = require('ejs');
 const { raw } = require('express');
 const gtfs = require('./modules/gtfs');
+const postgres = require('./modules/pg');
 
 let app = express();
 let localport = '3333';
@@ -26,18 +27,10 @@ app.get('/', (req, res) => {
   });
 });
 
-app.get('/tripupdates', (req, res) => {
-  let tripUpdatesArray = []
-  let feeds = [];
-  if (req.query.feeds) {
-    feeds = req.query.feeds.split(',');
-  } else {
-    feeds = ['ACE'];
-  }
-
-  gtfs.getTripUpdates(feeds, tripUpdatesArray, (updatesArray) => {
-    res.json(updatesArray);
-  });
+app.get('/sign/:signId', async (req, res) => {
+  let signId = req.params.signId;
+  let signInfo = await postgres.getSignInfo(signId);
+  console.log(signInfo);
 });
 
 app.get('/web', (req, res) => {
@@ -60,15 +53,29 @@ app.get('/web', (req, res) => {
   });
 });
 
-app.get('/routes', (req, res) => {
+app.get('/api/tripupdates', (req, res) => {
+  let tripUpdatesArray = []
+  let feeds = [];
+  if (req.query.feeds) {
+    feeds = req.query.feeds.split(',');
+  } else {
+    feeds = ['ACE'];
+  }
+
+  gtfs.getTripUpdates(feeds, tripUpdatesArray, (updatesArray) => {
+    res.json(updatesArray);
+  });
+});
+
+app.get('/api/routes', (req, res) => {
   res.json(gtfs.routes);
 });
 
-app.get('/stations', (req, res) => {
+app.get('/api/stations', (req, res) => {
   res.json(gtfs.stations);
 });
 
-app.get('/station/:stopid', (req, res) => {
+app.get('/api/station/:stopid', (req, res) => {
   for (let i = 0; i < stations.length; i ++) {
     if (stations[i].stopId === req.params.stopid) {
       res.json(gtfs.stations[i]);
@@ -76,19 +83,15 @@ app.get('/station/:stopid', (req, res) => {
   }
 });
 
-app.put('/servicetotrack/:service', (req, res) => {
+app.put('/api/servicetotrack/:service', (req, res) => {
   trackingService = req.params.service;
 });
 
-app.put('/stationtotrack/:station', (req, res) => {
+app.put('/api/stationtotrack/:station', (req, res) => {
   trackingStation = req.params.station;
 });
 
-app.get('/tripUpdates', (req, res) => {
-  res.json(gtfs.tripUpdates);
-});
-
-app.get('/arrivals/:stopid/:service', (req, res) => {
+app.get('/api/arrivals/:stopid', (req, res) => {
   // res.json(gtfs.getStationSchedule(req.params.stopId, req.params.service));
   gtfs.getStationSchedule(req.params.stopid, minimumTime, [], [], (schedule) => {
     res.json(schedule.filter(obj => obj.routeId === req.params.service));

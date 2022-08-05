@@ -3,6 +3,6 @@
   "watch": [
     "app.js",
     "gtfssample.js",
-    "./modules/gtfs.js"
+    "./modules/**.js"
   ]
 }

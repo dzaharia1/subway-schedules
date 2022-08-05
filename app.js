@@ -26,6 +26,20 @@ app.get('/', (req, res) => {
   });
 });
 
+app.get('/tripupdates', (req, res) => {
+  let tripUpdatesArray = []
+  let feeds = [];
+  if (req.query.feeds) {
+    feeds = req.query.feeds.split(',');
+  } else {
+    feeds = ['ACE'];
+  }
+
+  gtfs.getTripUpdates(feeds, tripUpdatesArray, (updatesArray) => {
+    res.json(updatesArray);
+  });
+});
+
 app.get('/web', (req, res) => {
   // let stopIds = req.query.stops.split(',');
 

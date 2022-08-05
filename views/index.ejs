@@ -14,7 +14,7 @@
 			} %>
 			<li class="arrivals__item">
 				<h3 line="<%= arrivalItem.routeId %>"><%= arrivalItem.routeId %></h3>
-				<p class="arrivals__item-headsign"><%= arrivalItem.direction %></p>
+				<p class="arrivals__item-headsign"><%= arrivalItem.headsign %></p>
 				<p <% if (arrivalItem.minutesUntil == 0) { %>class="warn"<% } %> ><%= arrivalItem.minutesUntil %> min</p>
 			</li>
 		<% } %>

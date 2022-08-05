@@ -122,9 +122,9 @@ function getHeadsignForTripId (tripId) {
     } else {
         switch (tripId[tripId.length  -1]) {
             case 'N':
-                return 'Northbound';
+                return 'Uptown';
             case 'S':
-                return 'Southbound'
+                return 'Downtown'
         }
         return tripId[tripId.length - 1];
     }
@@ -172,7 +172,12 @@ function getStationSchedules(stopIds, minimumTime, tripUpdatesArray, arrivalsArr
                     let minutesUntil = Math.floor((timeStamp - now) / 60000);
                     if (minutesUntil >= minimumTime) {
                         let scheduleItem = {};
-                        let direction = stopTimeUpdate.stopId[stopTimeUpdate.stopId.length - 1];
+                        let direction;
+                        if (stopTimeUpdate.stopId[stopTimeUpdate.stopId.length - 1] === 'S') {
+                            direction = 'Downtown';
+                        } else {
+                            direction = "Uptown";
+                        }
                         scheduleItem.routeId = tripUpdate.tripUpdate.trip.routeId;
                         scheduleItem.minutesUntil = minutesUntil;
                         scheduleItem.direction = direction;

@@ -97,7 +97,7 @@ let readyFunction = function() {
 		}
 		url = url.substr(0, url.length - 1);
 
-		let returnData = await APIRequest('PUT', url, []);
+		let returnData = await APIRequest('PUT', url);
 		window.location.reload();
 	});
 }

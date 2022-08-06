@@ -33,7 +33,16 @@ async function runQuery(query) {
 
 module.exports = {
     getSignInfo: async (signId) => {
-        console.log(`SELECT stations FROM signs WHERE sign_id="${signId}";`);
-        return await runQuery(`SELECT stations FROM signs WHERE sign_id="${signId}";`);
+        return await runQuery(`
+            SELECT * FROM signs WHERE sign_id='${signId}';
+        `);
+    },
+    setSignStops: async (signId, stops) => {
+        return await runQuery(`
+            UPDATE signs
+            SET stations='{${stops}}'
+            WHERE sign_id='${signId}'
+            RETURNING stations;
+        `);
     }
 };

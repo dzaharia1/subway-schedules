@@ -5,13 +5,12 @@ const ejs = require('ejs');
 const { raw } = require('express');
 const gtfs = require('./modules/gtfs');
 const postgres = require('./modules/pg');
+const { sign } = require('crypto');
+const { getSignInfo } = require('./modules/pg');
 
 let app = express();
 let localport = '3333';
 let localhost = 'http://localhost';
-
-let trackingStations = ['A25', '126', 'R14'];
-let minimumTime = 5;
 
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -30,27 +29,43 @@ app.get('/', (req, res) => {
 app.get('/sign/:signId', async (req, res) => {
   let signId = req.params.signId;
   let signInfo = await postgres.getSignInfo(signId);
-  console.log(signInfo);
+  let stations = signInfo[0].stations;
+  let minimumTime = signInfo[0]['minimum_time'];
+  gtfs.getStationSchedules(stations, minimumTime, [], [], (schedule) => {
+    res.json(schedule.slice(0, 10));
+  });
 });
 
-app.get('/web', (req, res) => {
-  // let stopIds = req.query.stops.split(',');
+app.get('/web/:signId', async (req, res) => {
+  let signId = req.params.signId;
+  let signInfo = await postgres.getSignInfo(signId);
+  let stations = signInfo[0].stations;
+  let minimumTime = signInfo[0]['minimum_time'];
 
-  if (req.query.stops) {
-    trackingStations = req.query.stops.split(',');
-  }
-
-  gtfs.getStationSchedules(trackingStations, minimumTime, [], [], (schedule) => {
+  gtfs.getStationSchedules(stations, minimumTime, [], [], (schedule) => {
     let viewData = {};
     viewData.trackedStations = [];
-    for (let stopId of trackingStations) {
+    for (let stopId of stations) {
       viewData.trackedStations.push(gtfs.stations.find(obj => obj.stopId.includes(stopId)));
     }
     viewData.stations = gtfs.stations;
     viewData.routes = gtfs.routes;
     viewData.arrivals = schedule;
+    viewData.signId = signId;
     res.render('index', viewData);
   });
+});
+
+app.put('/setstops/:signId', async (req, res) => {
+  console.log('running setstops');
+  let signId = req.params.signId;
+  let stops = req.query.stops.split(',');
+  let stopsString = "";
+  for (let stop of stops) { stopsString += `"${stop}",` }
+  stopsString = stopsString.substr(0, stopsString.length - 1);
+
+  let returnInfo = await postgres.setSignStops(signId, stopsString);
+  res.json(returnInfo);
 });
 
 app.get('/api/tripupdates', (req, res) => {

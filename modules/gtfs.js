@@ -154,9 +154,6 @@ function getTripUpdates (services, tripUpdatesArray, callback) {
 
 // get the arrivals for each of the stations with stop IDs in the stopIds parameter
 function getStationSchedules(stopIds, minimumTime, tripUpdatesArray, arrivalsArray, callback) {
-    console.log(stopIds);
-    console.log(`min time is ${minimumTime}`);
-
     // get the trip updates for each of the services of the station
     let station = stations.find(obj => obj.stopId.includes(stopIds[0]));
     let stationServices = getFeedsForStation(stopIds[0]);

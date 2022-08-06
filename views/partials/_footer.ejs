@@ -1,15 +1,13 @@
     </body>
     <script>
-        async function APIRequest(verb, route, params) {
+        let signId = "<%= signId %>";
+        async function APIRequest(verb, route) {
             let url = window.location.href;
             url = `https://${url.split('/', 3)[2]}/`;
             if (url.indexOf('localhost') >= 0) {
                 url = `http://${url.split('/', 3)[2]}/`;
             }
-            url += `${route}/`;
-            for (let i = 2; i < arguments.length; i++) {
-                url += `${arguments[i]}/`;
-            }
+            url += `${route}`;
             console.log(url);
             let response = await fetch(url, { method: verb });
             let data = await response.json();

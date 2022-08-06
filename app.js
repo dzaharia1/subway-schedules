@@ -4,13 +4,13 @@ const cons = require('consolidate');
 const ejs = require('ejs');
 const { raw } = require('express');
 const gtfs = require('./modules/gtfs');
+const postgres = require('./modules/pg');
+const { sign } = require('crypto');
+const { getSignInfo } = require('./modules/pg');
 
 let app = express();
 let localport = '3333';
 let localhost = 'http://localhost';
-
-let trackingStations = ['A25', '126', 'R14'];
-let minimumTime = 5;
 
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -26,7 +26,49 @@ app.get('/', (req, res) => {
   });
 });
 
-app.get('/tripupdates', (req, res) => {
+app.get('/sign/:signId', async (req, res) => {
+  let signId = req.params.signId;
+  let signInfo = await postgres.getSignInfo(signId);
+  let stations = signInfo[0].stations;
+  let minimumTime = signInfo[0]['minimum_time'];
+  gtfs.getStationSchedules(stations, minimumTime, [], [], (schedule) => {
+    res.json(schedule.slice(0, 10));
+  });
+});
+
+app.get('/web/:signId', async (req, res) => {
+  let signId = req.params.signId;
+  let signInfo = await postgres.getSignInfo(signId);
+  let stations = signInfo[0].stations;
+  let minimumTime = signInfo[0]['minimum_time'];
+
+  gtfs.getStationSchedules(stations, minimumTime, [], [], (schedule) => {
+    let viewData = {};
+    viewData.trackedStations = [];
+    for (let stopId of stations) {
+      viewData.trackedStations.push(gtfs.stations.find(obj => obj.stopId.includes(stopId)));
+    }
+    viewData.stations = gtfs.stations;
+    viewData.routes = gtfs.routes;
+    viewData.arrivals = schedule;
+    viewData.signId = signId;
+    res.render('index', viewData);
+  });
+});
+
+app.put('/setstops/:signId', async (req, res) => {
+  console.log('running setstops');
+  let signId = req.params.signId;
+  let stops = req.query.stops.split(',');
+  let stopsString = "";
+  for (let stop of stops) { stopsString += `"${stop}",` }
+  stopsString = stopsString.substr(0, stopsString.length - 1);
+
+  let returnInfo = await postgres.setSignStops(signId, stopsString);
+  res.json(returnInfo);
+});
+
+app.get('/api/tripupdates', (req, res) => {
   let tripUpdatesArray = []
   let feeds = [];
   if (req.query.feeds) {
@@ -40,35 +82,15 @@ app.get('/tripupdates', (req, res) => {
   });
 });
 
-app.get('/web', (req, res) => {
-  // let stopIds = req.query.stops.split(',');
-
-  if (req.query.stops) {
-    trackingStations = req.query.stops.split(',');
-  }
-
-  gtfs.getStationSchedules(trackingStations, minimumTime, [], [], (schedule) => {
-    let viewData = {};
-    viewData.trackedStations = [];
-    for (let stopId of trackingStations) {
-      viewData.trackedStations.push(gtfs.stations.find(obj => obj.stopId.includes(stopId)));
-    }
-    viewData.stations = gtfs.stations;
-    viewData.routes = gtfs.routes;
-    viewData.arrivals = schedule;
-    res.render('index', viewData);
-  });
-});
-
-app.get('/routes', (req, res) => {
+app.get('/api/routes', (req, res) => {
   res.json(gtfs.routes);
 });
 
-app.get('/stations', (req, res) => {
+app.get('/api/stations', (req, res) => {
   res.json(gtfs.stations);
 });
 
-app.get('/station/:stopid', (req, res) => {
+app.get('/api/station/:stopid', (req, res) => {
   for (let i = 0; i < stations.length; i ++) {
     if (stations[i].stopId === req.params.stopid) {
       res.json(gtfs.stations[i]);
@@ -76,19 +98,15 @@ app.get('/station/:stopid', (req, res) => {
   }
 });
 
-app.put('/servicetotrack/:service', (req, res) => {
+app.put('/api/servicetotrack/:service', (req, res) => {
   trackingService = req.params.service;
 });
 
-app.put('/stationtotrack/:station', (req, res) => {
+app.put('/api/stationtotrack/:station', (req, res) => {
   trackingStation = req.params.station;
 });
 
-app.get('/tripUpdates', (req, res) => {
-  res.json(gtfs.tripUpdates);
-});
-
-app.get('/arrivals/:stopid/:service', (req, res) => {
+app.get('/api/arrivals/:stopid', (req, res) => {
   // res.json(gtfs.getStationSchedule(req.params.stopId, req.params.service));
   gtfs.getStationSchedule(req.params.stopid, minimumTime, [], [], (schedule) => {
     res.json(schedule.filter(obj => obj.routeId === req.params.service));

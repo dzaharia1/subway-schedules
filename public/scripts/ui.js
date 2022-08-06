@@ -90,13 +90,15 @@ let readyFunction = function() {
 		searchBarClose.classList.remove('search-bar__close-button--active');
 	});
 
-	submitButton.addEventListener('click', (e) => {
-		let href = `/web?stops=`;
+	submitButton.addEventListener('click', async (e) => {
+		let url = `setstops/${signId}?stops=`;
 		for (let station of trackedStations) {
-			href += `${station},`;
+			url += `${station},`;
 		}
+		url = url.substr(0, url.length - 1);
 
-		window.location.href = href.substring(0, href.length - 1);
+		let returnData = await APIRequest('PUT', url, []);
+		window.location.reload();
 	});
 }
 

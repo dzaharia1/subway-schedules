@@ -161,26 +161,20 @@ function getStationSchedules(stopIds, minimumTime, tripUpdatesArray, arrivalsArr
     getTripUpdates(stationServices, tripUpdatesArray, (tripUpdatesArray) => {
         let now = Date.now();
         for (let tripUpdate of tripUpdatesArray) {
-            let headsign = getHeadsignForTripId(tripUpdate.tripUpdate.trip.tripId);
             for (let stopTimeUpdate of tripUpdate.tripUpdate.stopTimeUpdate) {
                 if (station.stopId.includes(stopTimeUpdate.stopId.substr(0, 3)) && stopTimeUpdate.arrival) {
-                    let timeStamp = parseInt(stopTimeUpdate.arrival.time.low) * 1000;
-                    let arrivalTime = new Date(timeStamp);
-                    let minutesUntil = Math.floor((timeStamp - now) / 60000);
-                    if (minutesUntil >= minimumTime) {
-                        let scheduleItem = {};
-                        let direction;
-                        if (stopTimeUpdate.stopId[stopTimeUpdate.stopId.length - 1] === 'S') {
-                            direction = 'Downtown';
-                        } else {
-                            direction = "Uptown";
-                        }
-                        scheduleItem.routeId = tripUpdate.tripUpdate.trip.routeId;
-                        scheduleItem.minutesUntil = minutesUntil;
-                        scheduleItem.direction = direction;
-                        scheduleItem.timeStamp = timeStamp;
-                        scheduleItem.headsign = headsign;
-                        scheduleItem.arrivalTime = `${arrivalTime.getHours()}:${arrivalTime.getMinutes()}`;
+                    let scheduleItem = {};
+                    scheduleItem.timeStamp = parseInt(stopTimeUpdate.arrival.time.low) * 1000;
+                    scheduleItem.arrivalTime = new Date(scheduleItem.timeStamp);
+                    scheduleItem.minutesUntil = Math.floor((scheduleItem.timeStamp - now) / 60000);
+                    scheduleItem.headsign = getHeadsignForTripId(tripUpdate.tripUpdate.trip.tripId);
+                    scheduleItem.routeId = tripUpdate.tripUpdate.trip.routeId;
+                    if (stopTimeUpdate.stopId[stopTimeUpdate.stopId.length - 1] === 'S') {
+                        scheduleItem.direction = 'Downtown';
+                    } else {
+                        scheduleItem.direction = "Uptown";
+                    }
+                    if (scheduleItem.minutesUntil >= minimumTime) {
                         arrivalsArray.push(scheduleItem);
                     }
                 }
@@ -188,8 +182,8 @@ function getStationSchedules(stopIds, minimumTime, tripUpdatesArray, arrivalsArr
         }
 
         if (stopIds.length > 1) {
-            const [ a, ...others ] = stopIds;
-            getStationSchedules(others, minimumTime, tripUpdatesArray, arrivalsArray, callback)
+            const [ a, ...othersStopIds ] = stopIds;
+            getStationSchedules(othersStopIds, minimumTime, tripUpdatesArray, arrivalsArray, callback)
         } else {
             arrivalsArray.sort((a, b) => (a.timeStamp > b.timeStamp) ? 1: -1);
             callback(arrivalsArray);

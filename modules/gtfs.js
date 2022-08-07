@@ -155,8 +155,11 @@ function getTripUpdates (services, tripUpdatesArray, callback) {
 // get the arrivals for each of the stations with stop IDs in the stopIds parameter
 function getStationSchedules(stopIds, minimumTime, tripUpdatesArray, arrivalsArray, callback) {
     // get the trip updates for each of the services of the station
-    let station = stations.find(obj => obj.stopId.includes(stopIds[0]));
-    let stationServices = getFeedsForStation(stopIds[0]);
+    console.log(stopIds);
+    let stopId = stopIds[0].substr(0, 3);
+    let directionId = stopIds[0][4];
+    let station = stations.find(obj => obj.stopId.includes(stopId));
+    let stationServices = getFeedsForStation(stopId);
 
     getTripUpdates(stationServices, tripUpdatesArray, (tripUpdatesArray) => {
         let now = Date.now();
@@ -169,15 +172,15 @@ function getStationSchedules(stopIds, minimumTime, tripUpdatesArray, arrivalsArr
                     let minutesUntil = Math.floor((timeStamp - now) / 60000);
                     if (minutesUntil >= minimumTime) {
                         let scheduleItem = {};
-                        let direction;
+                        let directionName;
                         if (stopTimeUpdate.stopId[stopTimeUpdate.stopId.length - 1] === 'S') {
-                            direction = 'Downtown';
+                            directionName = 'Downtown';
                         } else {
-                            direction = "Uptown";
+                            directionName = "Uptown";
                         }
                         scheduleItem.routeId = tripUpdate.tripUpdate.trip.routeId;
                         scheduleItem.minutesUntil = minutesUntil;
-                        scheduleItem.direction = direction;
+                        scheduleItem.directionName = directionName;
                         scheduleItem.timeStamp = timeStamp;
                         scheduleItem.headsign = headsign;
                         scheduleItem.arrivalTime = `${arrivalTime.getHours()}:${arrivalTime.getMinutes()}`;

@@ -37,12 +37,26 @@ module.exports = {
             SELECT * FROM signs WHERE sign_id='${signId}';
         `);
     },
-    setSignStops: async (signId, stops) => {
+    setSignStops: async (signId, stops, directions) => {
+        console.log(`
+            UPDATE signs
+            SET stations='{${stops}}', directions='{${directions}}'
+            WHERE sign_id='${signId}'
+            RETURNING *;
+        `);
         return await runQuery(`
             UPDATE signs
-            SET stations='{${stops}}'
+            SET stations='{${stops}}', directions='{${directions}}'
             WHERE sign_id='${signId}'
-            RETURNING stations;
+            RETURNING *;
+        `);
+    },
+    setSignMinimumTime: async (signId, minTime) => {
+        return await runQuery(`
+            UPDATE signs
+            SET minimum_time='${minTime}'
+            WHERE sign_id='${signId}'
+            RETURNING *;
         `);
     }
 };

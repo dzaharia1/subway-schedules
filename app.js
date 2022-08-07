@@ -40,13 +40,17 @@ app.get('/web/:signId', async (req, res) => {
   let signId = req.params.signId;
   let signInfo = await postgres.getSignInfo(signId);
   let stations = signInfo[0].stations;
+  let directions = signInfo[0].directions;
+  for (let i = 0; i < stations.length; i ++) {
+    stations[i] += directions[i];
+  }
   let minimumTime = signInfo[0]['minimum_time'];
 
   gtfs.getStationSchedules(stations, minimumTime, [], [], (schedule) => {
     let viewData = {};
     viewData.trackedStations = [];
     for (let stopId of stations) {
-      viewData.trackedStations.push(gtfs.stations.find(obj => obj.stopId.includes(stopId)));
+      viewData.trackedStations.push(gtfs.stations.find(obj => obj.stopId.includes(stopId.substr(0, 3))));
     }
     viewData.stations = gtfs.stations;
     viewData.routes = gtfs.routes;
@@ -56,17 +60,31 @@ app.get('/web/:signId', async (req, res) => {
   });
 });
 
-app.put('/setstops/:signId', async (req, res) => {
-  console.log('running setstops');
+app.get('/setstops/:signId', async (req, res) => {
+  console.log(`Running setstops on ${req.params.signId}`);
   let signId = req.params.signId;
   let stops = req.query.stops.split(',');
+  let directions = req.query.directions.split(',');
   let stopsString = "";
+  let directionsString = "";
+
   for (let stop of stops) { stopsString += `"${stop}",` }
   stopsString = stopsString.substr(0, stopsString.length - 1);
 
-  let returnInfo = await postgres.setSignStops(signId, stopsString);
+  for (let direction of directions) { directionsString += `"${direction}",` }
+  directionsString = directionsString.substr(0, directionsString.length - 1);
+
+  let returnInfo = await postgres.setSignStops(signId, stopsString, directionsString);
   res.json(returnInfo);
 });
+
+app.put('/setminimumtime/:signId', async (req, res) => {
+  let signId = req.params.signId;
+  let minTime = req.query.minimumtime;
+  let returnInfo = await postgres.setSignMinimumTime(signId, minTime);
+  res.json(returnInfo);
+});
+
 
 app.get('/api/tripupdates', (req, res) => {
   let tripUpdatesArray = []

@@ -3,14 +3,6 @@
     <button class="search-bar__close-button">close</button>
 </div>
 <ul class="station-selector__selection-indicator">
-    <!-- <% for (let station of trackedStations) { %>
-        <button class="station-selector__selection-indicator-item" data-name="<%= station.name %>" data-stopid="<%= station.stopId %>">
-            <p><%= station.name %></p>
-            <% for (let line of station.lines) { %>
-                <span line="<%= line %>"><%= line %></span>
-            <% } %>
-        </button>
-    <% } %> -->
     <% for (let station of stations) { %>
         <button class="station-selector__selection-indicator-item <% if (trackedStations.find(obj => obj.stopId === station.stopId)) { %> station-selector__selection-indicator-item--active <% } %>" id="<%= station.stopId %>" data-name="<%= station.name %>">
             <p><%= station.name %></p>

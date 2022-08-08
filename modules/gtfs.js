@@ -3,7 +3,6 @@ const GtfsRealtimeBindings = require('gtfs-realtime-bindings');
 const https = require('https');
 const request = require('request');
 const fs = require('fs');
-const cons = require('consolidate');
 
 let stationsFile = path.join(__dirname, '../agencyInfo/stations.txt');
 let routesFile =  path.join(__dirname, '../agencyInfo/routes.txt');
@@ -184,7 +183,7 @@ function getStationSchedules(stopIds, minimumTime, tripUpdatesArray, arrivalsArr
             const [ a, ...othersStopIds ] = stopIds;
             getStationSchedules(othersStopIds, minimumTime, tripUpdatesArray, arrivalsArray, callback)
         } else {
-            arrivalsArray.sort((a, b) => (a.timeStamp > b.timeStamp) ? 1: -1);
+            arrivalsArray.sort((a, b) => (a.minutesUntil > b.minutesUntil) ? 1: -1);
             callback(arrivalsArray);
         }
     });

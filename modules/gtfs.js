@@ -164,9 +164,8 @@ function getStationSchedules(stopIds, minimumTime, tripUpdatesArray, arrivalsArr
             for (let stopTimeUpdate of tripUpdate.tripUpdate.stopTimeUpdate) {
                 if (station.stopId.includes(stopTimeUpdate.stopId.substr(0, 3)) && stopTimeUpdate.arrival) {
                     let scheduleItem = {};
-                    scheduleItem.timeStamp = parseInt(stopTimeUpdate.arrival.time.low) * 1000;
-                    scheduleItem.arrivalTime = new Date(scheduleItem.timeStamp);
-                    scheduleItem.minutesUntil = Math.floor((scheduleItem.timeStamp - now) / 60000);
+                    let timeStamp = parseInt(stopTimeUpdate.arrival.time.low) * 1000;
+                    scheduleItem.minutesUntil = Math.floor((timeStamp - now) / 60000);
                     scheduleItem.headsign = getHeadsignForTripId(tripUpdate.tripUpdate.trip.tripId);
                     scheduleItem.routeId = tripUpdate.tripUpdate.trip.routeId;
                     if (stopTimeUpdate.stopId[stopTimeUpdate.stopId.length - 1] === 'S') {

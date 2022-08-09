@@ -30,8 +30,12 @@ app.get('/sign/:signId', async (req, res) => {
   let signId = req.params.signId;
   let signInfo = await postgres.getSignInfo(signId);
   let stations = signInfo[0].stations;
+  let directionFilter = signInfo[0].direction;
   let minimumTime = signInfo[0]['minimum_time'];
   gtfs.getStationSchedules(stations, minimumTime, [], [], (schedule) => {
+    if (directionFilter) {
+      schedule = schedule.filter(obj => obj.stopId.includes(directionFilter));
+    }
     res.json(schedule.slice(0, 10));
   });
 });
@@ -41,6 +45,7 @@ app.get('/web/:signId', async (req, res) => {
   let signInfo = await postgres.getSignInfo(signId);
   let stations = signInfo[0].stations;
   let minimumTime = signInfo[0]['minimum_time'];
+  let directionFilter = signInfo[0].direction;
 
   gtfs.getStationSchedules(stations, minimumTime, [], [], (schedule) => {
     let viewData = {};
@@ -50,7 +55,11 @@ app.get('/web/:signId', async (req, res) => {
     }
     viewData.stations = gtfs.stations;
     viewData.routes = gtfs.routes;
-    viewData.arrivals = schedule;
+    if (directionFilter) {
+      viewData.arrivals = schedule.filter(obj => obj.stopId.includes(directionFilter));
+    } else {
+      viewData.arrivals = schedule;
+    }
     viewData.signId = signId;
     res.render('index', viewData);
   });

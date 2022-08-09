@@ -167,6 +167,7 @@ function getStationSchedules(stopIds, minimumTime, tripUpdatesArray, arrivalsArr
                     scheduleItem.minutesUntil = Math.floor((timeStamp - now) / 60000);
                     scheduleItem.headsign = getHeadsignForTripId(tripUpdate.tripUpdate.trip.tripId);
                     scheduleItem.routeId = tripUpdate.tripUpdate.trip.routeId;
+                    scheduleItem.stopId = stopTimeUpdate.stopId;
                     if (stopTimeUpdate.stopId[stopTimeUpdate.stopId.length - 1] === 'S') {
                         scheduleItem.direction = 'Downtown';
                     } else {

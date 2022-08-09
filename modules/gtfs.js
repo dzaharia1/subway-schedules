@@ -10,7 +10,6 @@ let tripsFile = path.join(__dirname, '../agencyInfo/trips.txt');
 
 let routes = [];
 let stations = [];
-let trips = [];
 
 let services = [ "ACE", "BDFM", "G", "JZ", "NQRW", "L", "1234566X7", "SI" ];
 
@@ -35,7 +34,6 @@ const requestSettings = {
 
 setUpStations();
 setUpRoutes();
-setUpTrips();
 
 function setUpStations() {
     console.log('Setting up stations');
@@ -53,7 +51,6 @@ function setUpStations() {
                 stationObject.lines.sort((a, b) => (a > b) ? 1 : -1);
                 stations.push(stationObject);
             }
-            
         } else {
             console.error(err);
         }
@@ -72,6 +69,11 @@ function getFeedsForStation(stopId) {
     }
 
     return returnArray;
+}
+
+function getStopName (stopId) {
+    let stopInQuestion = stations.find(obj => stopId.includes(obj.stopId));
+    return stopInQuestion.name;
 }
 
 function setUpRoutes() {
@@ -93,40 +95,6 @@ function setUpRoutes() {
       console.error(err);
     }
   });
-}
-
-function setUpTrips() {
-    console.log('Setting up trips');
-    fs.readFile(tripsFile, {encoding: 'utf8'}, (err, data) => {
-        if (!err) {
-            let rawData = CSVToArray(data, ',');
-            for (let trip of rawData) {
-                let tripObject = {};
-                tripObject.routeId = trip[0];
-                tripObject.tripId = trip[1];
-                tripObject.headsign = trip[3];
-                trips.push(tripObject);
-            }
-            trips.pop();
-        } else {
-            console.error(err);
-        }
-    });
-}
-
-function getHeadsignForTripId (tripId) {
-    let trip = trips.find(obj => obj.tripId.includes(tripId.substr(0, tripId.length - 1)));
-    if (trip) {
-        return trip.headsign;
-    } else {
-        switch (tripId[tripId.length  -1]) {
-            case 'N':
-                return 'Uptown';
-            case 'S':
-                return 'Downtown'
-        }
-        return tripId[tripId.length - 1];
-    }
 }
 
 function getTripUpdates (services, tripUpdatesArray, callback) {
@@ -160,12 +128,13 @@ function getStationSchedules(stopIds, minimumTime, tripUpdatesArray, arrivalsArr
     getTripUpdates(stationServices, tripUpdatesArray, (tripUpdatesArray) => {
         let now = Date.now();
         for (let tripUpdate of tripUpdatesArray) {
-            for (let stopTimeUpdate of tripUpdate.tripUpdate.stopTimeUpdate) {
+            let stopTimeUpdates = tripUpdate.tripUpdate.stopTimeUpdate;
+            for (let stopTimeUpdate of stopTimeUpdates) {
                 if (station.stopId.includes(stopTimeUpdate.stopId.substr(0, 3)) && stopTimeUpdate.arrival) {
                     let scheduleItem = {};
                     let timeStamp = parseInt(stopTimeUpdate.arrival.time.low) * 1000;
                     scheduleItem.minutesUntil = Math.floor((timeStamp - now) / 60000);
-                    scheduleItem.headsign = getHeadsignForTripId(tripUpdate.tripUpdate.trip.tripId);
+                    scheduleItem.headsign = getStopName(stopTimeUpdates[stopTimeUpdates.length - 1].stopId);
                     scheduleItem.routeId = tripUpdate.tripUpdate.trip.routeId;
                     scheduleItem.stopId = stopTimeUpdate.stopId;
                     if (stopTimeUpdate.stopId[stopTimeUpdate.stopId.length - 1] === 'S') {

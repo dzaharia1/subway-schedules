@@ -172,7 +172,6 @@ function getStationSchedules(stopIds, minimumTime, tripUpdatesArray, arrivalsArr
                     } else {
                         scheduleItem.direction = "Uptown";
                     }
-                    console.log(`Checking station ${scheduleItem.stopId} and route ${scheduleItem.routeId} going ${scheduleItem.direction}`);
                     scheduleItem.headsign = getHeadsignforTripUpdate(scheduleItem.routeId,
                                                                      scheduleItem.stopId,
                                                                      stopTimeUpdates);

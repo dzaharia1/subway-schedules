@@ -144,10 +144,11 @@ function getHeadsignforTripUpdate (routeId, trackedStopId, stopTimeUpdates) {
     trackedStopName = getStopName(trackedStopId.substr(0,3));
     
     if (trackedStopId.includes(destinationStopId)) {
-        console.log(`Checking ${routeId} train at ${destinationStopId}`);
         let terminal = terminals.find(obj => obj.terminal == destinationStopId && obj.routeId == routeId[0]);
-        console.log(terminal);
-        return getStopName(terminal.opposite);
+        if (terminal) {
+            return getStopName(terminal.opposite);
+        }
+        return `Dprtg ${destinationStopName}`;
     }
     return destinationStopName;
 }

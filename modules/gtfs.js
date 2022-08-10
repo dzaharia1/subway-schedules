@@ -12,7 +12,7 @@ let routes = [];
 let stations = [];
 let terminals = [];
 
-let services = [ "ACE", "BDFM", "G", "JZ", "NQRW", "L", "1234566X7", "SI" ];
+let services = [ "ACE", "BDFM", "G", "JZ", "NQRW", "L", "1234566X7GS", "SI" ];
 
 let feeds = {
     "ACE": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-ace",
@@ -21,7 +21,7 @@ let feeds = {
     "JZ": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-jz",
     "NQRW": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-nqrw",
     "L": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-l",
-    "1234566X7": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs",
+    "1234566X7GS": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs",
     "SI": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-si"
 }
 
@@ -141,10 +141,12 @@ function getTripUpdates (services, tripUpdatesArray, callback) {
 function getHeadsignforTripUpdate (routeId, trackedStopId, stopTimeUpdates) {
     let destinationStopId = stopTimeUpdates[stopTimeUpdates.length - 1].stopId.substr(0,3);
     destinationStopName = getStopName(destinationStopId);
-    trackedStopName = getStopName(trackedStopId);
-
+    trackedStopName = getStopName(trackedStopId.substr(0,3));
+    
     if (trackedStopId.includes(destinationStopId)) {
+        console.log(`Checking ${routeId} train at ${destinationStopId}`);
         let terminal = terminals.find(obj => obj.terminal == destinationStopId && obj.routeId == routeId[0]);
+        console.log(terminal);
         return getStopName(terminal.opposite);
     }
     return destinationStopName;
@@ -155,6 +157,7 @@ function getStationSchedules(stopIds, minimumTime, tripUpdatesArray, arrivalsArr
     // get the trip updates for each of the services of the station
     let station = stations.find(obj => obj.stopId.includes(stopIds[0]));
     let stationServices = getFeedsForStation(stopIds[0]);
+    console.log(stationServices);
 
     getTripUpdates(stationServices, tripUpdatesArray, (tripUpdatesArray) => {
         let now = Date.now();
@@ -167,11 +170,6 @@ function getStationSchedules(stopIds, minimumTime, tripUpdatesArray, arrivalsArr
                     scheduleItem.minutesUntil = Math.floor((timeStamp - now) / 60000);
                     scheduleItem.stopId = stopTimeUpdate.stopId;
                     scheduleItem.routeId = tripUpdate.tripUpdate.trip.routeId;
-                    if (stopTimeUpdate.stopId[stopTimeUpdate.stopId.length - 1] === 'S') {
-                        scheduleItem.direction = 'Downtown';
-                    } else {
-                        scheduleItem.direction = "Uptown";
-                    }
                     scheduleItem.headsign = getHeadsignforTripUpdate(scheduleItem.routeId,
                                                                      scheduleItem.stopId,
                                                                      stopTimeUpdates);

@@ -171,8 +171,8 @@ A19,96 St,A,B,C,D
 J24,Alabama Av,J,Z 
 210,Allerton Av,2,5 
 S17,Annadale,SI 
-H01,Aqueduct Racetrack,A,H 
-H02,Aqueduct-N Conduit Av,A,H 
+H01,Aqueduct Racetrack,A 
+H02,Aqueduct-N Conduit Av,A 
 S11,Arthur Kill,SI 
 636,Astor Pl,4,6,6X 
 R03,Astoria Blvd,N,W 
@@ -199,14 +199,14 @@ R42,Bay Ridge Av,R
 R45,Bay Ridge-95 St,R 
 S20,Bay Terrace,SI 
 502,Baychester Av,5 
-H14,Beach 105 St,A,H 
+H14,Beach 105 St,A 
 H10,Beach 25 St,A 
 H09,Beach 36 St,A 
 H08,Beach 44 St,A 
 H07,Beach 60 St,A 
 H06,Beach 67 St,A 
-H12,Beach 90 St,A,H 
-H13,Beach 98 St,A,H 
+H12,Beach 90 St,A 
+H13,Beach 98 St,A 
 L08,Bedford Av,L 
 D03,Bedford Park Blvd,B,D 
 405,Bedford Park Blvd-Lehman College,4 
@@ -224,7 +224,7 @@ M19,Bowery,J,Z
 F05,Briarwood,E,F,FX 
 D40,Brighton Beach,B,Q 
 H19,Broad Channel, 
-H04,Broad Channel,A,H 
+H04,Broad Channel,A 
 M23,Broad St,J,Z 
 R05,Broadway,N,W 
 G30,Broadway,G 
@@ -342,7 +342,7 @@ J29,Halsey St,J
 M14,Hewes St,J,M 
 A40,High St,A,C 
 134,Houston St,1,2 
-H03,Howard Beach-JFK Airport,A,H 
+H03,Howard Beach-JFK Airport,A 
 233,Hoyt St,2,3,5 
 A42,Hoyt-Schermerhorn Sts,A,C,G 
 S16,Huguenot,SI 
@@ -441,8 +441,8 @@ R26,Rector St,N,W,R,Q
 S13,Richmond Valley,SI 
 A50,Rockaway Av,A,C 
 253,Rockaway Av,2,3,4,5 
-A61,Rockaway Blvd,A,H 
-H15,Rockaway Park-Beach 116 St,A,H 
+A61,Rockaway Blvd,A 
+H15,Rockaway Park-Beach 116 St,A 
 B06,Roosevelt Island,F,FX 
 N12,S.B. Coney Island, 
 252,Saratoga Av,2,3,4,5 

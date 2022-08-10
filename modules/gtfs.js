@@ -6,10 +6,11 @@ const fs = require('fs');
 
 let stationsFile = path.join(__dirname, '../agencyInfo/stations.txt');
 let routesFile =  path.join(__dirname, '../agencyInfo/routes.txt');
-let tripsFile = path.join(__dirname, '../agencyInfo/trips.txt');
+let terminalsFile = path.join(__dirname, '../agencyInfo/terminals.txt');
 
 let routes = [];
 let stations = [];
+let terminals = [];
 
 let services = [ "ACE", "BDFM", "G", "JZ", "NQRW", "L", "1234566X7", "SI" ];
 
@@ -34,6 +35,7 @@ const requestSettings = {
 
 setUpStations();
 setUpRoutes();
+setUpTerminals();
 
 function setUpStations() {
     console.log('Setting up stations');
@@ -97,6 +99,23 @@ function setUpRoutes() {
   });
 }
 
+function setUpTerminals() {
+    console.log("Set up terminals");
+    fs.readFile(terminalsFile, {encoding: 'utf8'}, (err, data) => {
+        if (!err) {
+            let rawData = CSVToArray(data, ',');
+            for (let terminal of rawData) {
+                terminals.push({
+                    "routeId": terminal[0],
+                    "terminal": terminal[1],
+                    "opposite": terminal[2]
+                });
+            }
+            terminals.pop();
+        }
+    });
+}
+
 function getTripUpdates (services, tripUpdatesArray, callback) {
     service = services[0];
     requestSettings.url = feeds[service];
@@ -119,6 +138,18 @@ function getTripUpdates (services, tripUpdatesArray, callback) {
     });
 }
 
+function getHeadsignforTripUpdate (routeId, trackedStopId, stopTimeUpdates) {
+    let destinationStopId = stopTimeUpdates[stopTimeUpdates.length - 1].stopId.substr(0,3);
+    destinationStopName = getStopName(destinationStopId);
+    trackedStopName = getStopName(trackedStopId);
+
+    if (trackedStopId.includes(destinationStopId)) {
+        let terminal = terminals.find(obj => obj.terminal == destinationStopId && obj.routeId == routeId[0]);
+        return getStopName(terminal.opposite);
+    }
+    return destinationStopName;
+}
+
 // get the arrivals for each of the stations with stop IDs in the stopIds parameter
 function getStationSchedules(stopIds, minimumTime, tripUpdatesArray, arrivalsArray, callback) {
     // get the trip updates for each of the services of the station
@@ -134,14 +165,17 @@ function getStationSchedules(stopIds, minimumTime, tripUpdatesArray, arrivalsArr
                     let scheduleItem = {};
                     let timeStamp = parseInt(stopTimeUpdate.arrival.time.low) * 1000;
                     scheduleItem.minutesUntil = Math.floor((timeStamp - now) / 60000);
-                    scheduleItem.headsign = getStopName(stopTimeUpdates[stopTimeUpdates.length - 1].stopId);
-                    scheduleItem.routeId = tripUpdate.tripUpdate.trip.routeId;
                     scheduleItem.stopId = stopTimeUpdate.stopId;
+                    scheduleItem.routeId = tripUpdate.tripUpdate.trip.routeId;
                     if (stopTimeUpdate.stopId[stopTimeUpdate.stopId.length - 1] === 'S') {
                         scheduleItem.direction = 'Downtown';
                     } else {
                         scheduleItem.direction = "Uptown";
                     }
+                    console.log(`Checking station ${scheduleItem.stopId} and route ${scheduleItem.routeId} going ${scheduleItem.direction}`);
+                    scheduleItem.headsign = getHeadsignforTripUpdate(scheduleItem.routeId,
+                                                                     scheduleItem.stopId,
+                                                                     stopTimeUpdates);
                     if (scheduleItem.minutesUntil >= minimumTime) {
                         arrivalsArray.push(scheduleItem);
                     }

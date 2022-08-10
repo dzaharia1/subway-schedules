@@ -148,7 +148,7 @@ function getHeadsignforTripUpdate (routeId, trackedStopId, stopTimeUpdates) {
         if (terminal) {
             return getStopName(terminal.opposite);
         }
-        return `Dprtg ${destinationStopName}`;
+        return `From ${destinationStopName}`;
     }
     return destinationStopName;
 }

@@ -1,28 +1,51 @@
 .add-stations-mode {
     .header {
-        display: none;
+        transform: translateY(-60px);
+        opacity: 0;
+        transition: transform $transition,
+                    opacity $transition;
     }
 
     .search-bar {
-        display: flex;
+        // display: flex;
+        opacity: 1;
+        transition: top $transition,
+                    opacity $transition;
     }
 
     .sign-mockup {
-        display: none;
+        max-height: 0px;
+        margin: 0px;
+        padding: 0px;
+        transition: max-height $transition,
+                    margin $transition,
+                    padding $transition;
     }
 
     .tabs {
-        top: 100vh;
+        max-height: 0px;
+        transition: max-height $transition;
+    }
+
+    .station-button__lines {
+        margin-right: 2rem;
+        transition: margin $transition;
     }
 
     .active-stations {
         flex: none;
         margin-bottom: 1rem;
+
+        .station-button {
+            background-image: url('../img/close.svg');
+        }
     }
 
     .search-results {
         display: flex;
         flex: 1;
         overflow-y: scroll;
+        opacity: 1;
+        transition: opacity $transition;
     }
 }

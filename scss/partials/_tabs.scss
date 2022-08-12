@@ -3,6 +3,9 @@
     width: 100%;
     padding: 0;
     margin-top: 1rem;
+    max-height: 50px;
+    overflow-y: hidden;
+    transition: max-height $transition;
 
     &__item {
         flex: 1;

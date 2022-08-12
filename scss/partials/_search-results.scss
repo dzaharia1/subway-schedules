@@ -1,11 +1,13 @@
 .search-results {
     @extend %vertical-start;
     width: 100%;
+    opacity: 0;
     display: none;
+    transition: opacity $transition;
 
     &__separator {
         width: 100%;
-        border-bottom: 2px $primary-white solid;
+        border-bottom: 1px $primary-white solid;
         margin-bottom: 1rem;
     }
 

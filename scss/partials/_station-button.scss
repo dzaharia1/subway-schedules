@@ -12,15 +12,17 @@
         color: $primary-white;
         font-size: 1.25rem;
         margin-right: .5rem;
+        text-align: left;
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-        max-width: 50%;
+        flex: 1;
     }
 
     &__lines {
         @extend %horizontal-center;
-        flex: 1;
+        margin-right: 0;
+        transition: margin $transition;
 
         li {
             @extend %horizontal-center;

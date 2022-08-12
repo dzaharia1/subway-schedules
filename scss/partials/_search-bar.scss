@@ -2,7 +2,14 @@
     @extend %horizontal-center;
     width: 100%;
     padding: $padding-mobile 1rem;
-    display: none;
+    opacity: 0;
+
+    position: absolute;
+    top: 0px;
+    left: 0;
+    right: 0;
+    transition: top $transition,
+                opacity $transition;
 
     input {
         font-size: 2rem;
@@ -10,12 +17,12 @@
         color: $primary-white;
         width: 100%;
 
-        :focus {
+        &:focus-visible {
             outline: none;
         }
 
         &::placeholder {
-            color: lighten($tertiary-blue, 20%);
+            color: lighten($tertiary-blue, 30%);
         }
     }
 }

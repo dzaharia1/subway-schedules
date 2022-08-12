@@ -5,8 +5,6 @@ const ejs = require('ejs');
 const { raw } = require('express');
 const gtfs = require('./modules/gtfs');
 const postgres = require('./modules/pg');
-const { sign } = require('crypto');
-const { getSignInfo } = require('./modules/pg');
 
 let app = express();
 let localport = '3333';
@@ -28,7 +26,7 @@ app.get('/', (req, res) => {
 
 app.get('/sign/:signId', async (req, res) => {
   let signId = req.params.signId;
-  let signInfo = await postgres.getSignInfo(signId);
+  let signInfo = await postgres.getSignConfig(signId);
   let stations = signInfo[0].stations;
   let directionFilter = signInfo[0].direction;
   let minimumTime = signInfo[0]['minimum_time'];
@@ -42,7 +40,7 @@ app.get('/sign/:signId', async (req, res) => {
 
 app.get('/web/:signId', async (req, res) => {
   let signId = req.params.signId;
-  let signInfo = await postgres.getSignInfo(signId);
+  let signInfo = await postgres.getSignConfig(signId);
   let stations = signInfo[0].stations;
   let minimumTime = signInfo[0]['minimum_time'];
   let directionFilter = signInfo[0].direction;
@@ -60,7 +58,7 @@ app.get('/web/:signId', async (req, res) => {
     } else {
       viewData.arrivals = schedule;
     }
-    viewData.signId = signId;
+    viewData.signInfo = signInfo[0];
     res.render('index', viewData);
   });
 });

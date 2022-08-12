@@ -1,27 +1,18 @@
-
-	<%- include('partials/_header') %>
-
+<%- include('partials/_head') %>
 <main>
-	<%- include('partials/_stationselector') %>
-	<ul class="arrivals">
-		<% for (let arrivalItem of arrivals) {
-			let routeColor, routeTextColor;
-			for (route of routes) {
-				if (route.routeId == arrivalItem.routeId) {
-					routeColor = route.color;
-					routeTextColor = route.textColor || '000000';
-				}
-			} %>
-			<li class="arrivals__item">
-				<h3 line="<%= arrivalItem.routeId %>"><%= arrivalItem.routeId %></h3>
-				<p class="arrivals__item-headsign"><%= arrivalItem.headsign %></p>
-				<p <% if (arrivalItem.minutesUntil == 0) { %>class="warn"<% } %> ><%= arrivalItem.minutesUntil %> min</p>
-			</li>
-		<% } %>
-	</ul>
-	<button class="submit" href="/web?stops=">Set stops</a>
-    
+	<%- include('partials/_header') %>
+	<%- include('partials/_sign-mockup') %>
+	<div class="tab-panel tab-panel--active tab-panel--stations">
+		<%- include('partials/_active-stations-list') %>
+		<button class="edit-stations">
+			<img src="../img/search.svg" alt="">
+			Edit stations
+		</button>
+	</div>
+	<div class="tab-panel tab-panel--options">
+		options
+	</div>
+	<%- include('partials/_tabs') %>
 </main>
-
-	<%- include('partials/_footer') %>
+<%- include('partials/_footer') %>
 

@@ -1,0 +1,39 @@
+.sign-mockup {
+    @extend %vertical-start;
+    width: 100%;
+    padding: .5rem $padding-mobile;
+    background-color: $background-blue;
+    margin-bottom: 2rem;
+
+    &__arrival {
+        @extend %horizontal-center;
+        widtH: 100%;
+
+        &:first-child {
+            margin-bottom: .5rem;
+        }
+
+        &-index,
+        &-line,
+        &-headsign {
+            font-size: 1rem;
+            font-weight: 400;
+            margin-right: .5rem;
+        }
+
+        &-line {
+            @extend %vertical-center;
+            justify-content: center;
+            width: 1.75rem;
+            height: 1.75rem;
+            border-radius: 50%;
+        }
+
+        &-headsign {
+            flex: 1;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+    }
+}

@@ -1,0 +1,26 @@
+button {
+    @extend %horizontal-center;
+    justify-content: center;
+    padding: .5rem 1rem;
+    color: $primary-white;
+    font-weight: 700;
+    font-size: 1rem;
+    border: 1px $tertiary-blue solid;
+    border-radius: 4px;
+    
+    img {
+        width: 28px;
+        height: 28px;
+        margin-right: 1rem;
+    }
+}
+
+.icon-button {
+	width: 2.25rem;
+	height: 2.25rem;
+	background-repeat: no-repeat;
+	background-size: cover;
+    background-position: center center;
+    border: none;
+    border-radius: 50%;
+}

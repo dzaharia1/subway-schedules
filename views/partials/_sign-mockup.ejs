@@ -1,0 +1,10 @@
+<ul class="sign-mockup">
+    <% for (let i = 0; i < 2; i ++) { %>
+        <li class="sign-mockup__arrival">
+            <p class="sign-mockup__arrival-index"><%= i + 1 %></p>
+            <p class="sign-mockup__arrival-line" line="<%= arrivals[i].routeId %>"><%= arrivals[i].routeId %></p>
+            <h2 class="sign-mockup__arrival-headsign"><%= arrivals[i].headsign%></h2>
+            <p class="sign-mockup__arrival-estimate"><%= arrivals[i].minutesUntil %>min</p>
+        </li>
+    <% } %>
+</ul>

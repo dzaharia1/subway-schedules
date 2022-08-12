@@ -1,15 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>subway-arrivals</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="viewport" content="width=device-width, user-scalable=no">
-	<meta name="mobile-web-app-capable" content="yes">
-	<meta name="apple-mobile-web-app-capable" content="yes">
-	<meta name="apple-mobile-web-app-status-bar-style" content="white">
-	<meta name="theme-color" content="#232338">
-	<link rel="stylesheet" href="/css/main.css">
-	<script src="/scripts/ui.js"></script>
-</head>
-<body>
+<header class="header">
+    <h1 class="header__sign-name" data-signid=<%= signInfo.sign_id %>>Sign <%= signInfo.sign_id.toUpperCase() %></h1>
+    <button class="icon-button header__power-button"></button>
+</header>

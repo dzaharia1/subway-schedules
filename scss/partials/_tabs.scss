@@ -1,0 +1,21 @@
+.tabs {
+    @extend %horizontal-center;
+    width: 100%;
+    padding: 0;
+    margin-top: 1rem;
+
+    &__item {
+        flex: 1;
+        padding: .25rem 1rem .875rem;
+        font-size: 1rem;
+        font-weight: 400;
+        border: 0;
+        border-radius: 0;
+
+        &--active {
+            border-bottom: 4px $primary-white solid;;
+            padding-bottom: calc(.875rem - 4px);
+            font-weight: 700;
+        }
+    }
+}

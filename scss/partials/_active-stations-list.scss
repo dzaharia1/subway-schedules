@@ -1,0 +1,18 @@
+.active-stations {
+    @extend %vertical-start;
+    width: 100%;
+    flex: 1;
+    overflow-y: scroll;
+    
+    h2 {
+        margin-bottom: 1rem;
+    }
+
+    &__item {
+        width: 100%;
+
+        &--active {
+            display: block;
+        }
+    }
+}

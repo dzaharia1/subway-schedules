@@ -1,0 +1,13 @@
+.header {
+    @extend %horizontal-center;
+    width: 100%;
+    padding: $padding-mobile 1rem;
+
+    &__sign-name {
+        flex: 1;
+    }
+
+    &__power-button {
+        background-image: url('../img/power.svg');
+    }
+}

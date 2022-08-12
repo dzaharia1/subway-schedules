@@ -1,0 +1,20 @@
+.tab-panel {
+    @extend %vertical-start;
+    width: 100%;
+    flex: 1;
+    padding: 0 $padding-mobile;
+    display: none;
+    overflow-y: hidden;
+
+    &--active {
+        display: flex;
+    }
+
+    button {
+        width: 100%;
+    }
+
+    .edit-stations {
+        margin: 1rem 0 0;
+    }
+}

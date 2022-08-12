@@ -4,6 +4,7 @@ let searchResultsList;
 let searchResults = [];
 let searchInput;
 let editStationsButton;
+let tabButtons;
 
 let readyFunction = function() {
 	activeStationsList = document.querySelector('.active-stations');
@@ -12,13 +13,13 @@ let readyFunction = function() {
 	searchResults = searchResultsList.querySelectorAll('.stations-list__item');
 	searchInput = document.querySelector('.search-bar>input[type="text"]');
 	editStationsButton = document.querySelector('.edit-stations');
+	tabButtons = document.querySelectorAll('.tabs>button');
 
 	for (let activeStation of activeStations) {
 		if (!activeStation.classList.contains('stations-list__item--active')) {
 			activeStation.parentNode.removeChild(activeStation);
 		}
 	}
-
 	clearSearchResults();
 
 	searchInput.addEventListener('input', (e) => {
@@ -29,6 +30,24 @@ let readyFunction = function() {
 	editStationsButton.addEventListener('click', (e) => {
 		toggleStationsViewMode();
 	});
+
+	for (let tabButton of tabButtons) {
+		tabButton.addEventListener ('click', (e) => {
+			let targetClassname = `tab-panel__frame--${tabButton.getAttribute('target-frame')}`;
+			let leftClassname = `tab-panel__frame--left`;
+			let rightClassname = `tab-panel__frame--right`;
+			let tabFrame = document.querySelector('.tab-panel__frame');
+			tabFrame.classList.remove(leftClassname);
+			tabFrame.classList.remove(rightClassname);
+			tabFrame.classList.add(targetClassname);
+
+			for (let button of tabButtons){
+				button.classList.remove('tabs__item--active');
+			}
+
+			tabButton.classList.add('tabs__item--active');
+		});
+	}
 }
 
 function searchStations(searchTerm) {

@@ -1,13 +1,26 @@
 .tab-panel {
     @extend %vertical-start;
-    width: 100%;
-    flex: 1;
-    padding: 0 $padding-mobile;
-    display: none;
+    width: 100vw;
+    height: 100%;
+    padding: 0 calc($padding-mobile / 2);
     overflow-y: scroll;
+    position: relative;
+    
+    &__frame {
+        @extend %horizontal-start;
+        position: relative;
+        width: 200vw;
+        flex: 1;
+        overflow: visible;
+        transition: transform $transition;
 
-    &--active {
-        display: flex;
+        &--left {
+            transform: translateX(0);
+        }
+
+        &--right {
+            transform: translateX(-100vw);
+        }
     }
 
     button {

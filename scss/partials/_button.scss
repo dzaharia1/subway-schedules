@@ -4,7 +4,7 @@ button {
     padding: .5rem 1rem;
     color: $primary-white;
     font-weight: 700;
-    font-size: 1rem;
+    font-size: 1.25rem;
     border: 1px $tertiary-blue solid;
     border-radius: 4px;
     
@@ -23,4 +23,8 @@ button {
     background-position: center center;
     border: none;
     border-radius: 50%;
+}
+
+.edit-stations {
+    margin: 1rem 0 0;
 }

@@ -7,9 +7,13 @@
 @import 'partials/tab-panel';
 @import 'partials/station-button';
 @import 'partials/header';
+@import 'partials/search-bar';
 @import 'partials/sign-mockup';
-@import 'partials/active-stations-list';
+@import 'partials/stations-list';
+@import 'partials/search-results';
 @import 'partials/tabs';
+@import 'partials/add-stations-mode';
+@import 'partials/active-stations';
 
 .hidden {
 	display: none;

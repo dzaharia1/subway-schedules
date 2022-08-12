@@ -1,0 +1,28 @@
+.add-stations-mode {
+    .header {
+        display: none;
+    }
+
+    .search-bar {
+        display: flex;
+    }
+
+    .sign-mockup {
+        display: none;
+    }
+
+    .tabs {
+        top: 100vh;
+    }
+
+    .active-stations {
+        flex: none;
+        margin-bottom: 1rem;
+    }
+
+    .search-results {
+        display: flex;
+        flex: 1;
+        overflow-y: scroll;
+    }
+}

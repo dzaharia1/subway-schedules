@@ -1,13 +1,10 @@
-.active-stations {
+.stations-list {
     @extend %vertical-start;
     width: 100%;
-    flex: 1;
     overflow-y: scroll;
-    
-    h2 {
-        margin-bottom: 1rem;
-    }
-
+    margin-top: 1rem;
+}
+.stations-list{
     &__item {
         width: 100%;
 

@@ -1,0 +1,21 @@
+.search-bar {
+    @extend %horizontal-center;
+    width: 100%;
+    padding: $padding-mobile 1rem;
+    display: none;
+
+    input {
+        font-size: 2rem;
+        font-weight: 700;
+        color: $primary-white;
+        width: 100%;
+
+        :focus {
+            outline: none;
+        }
+
+        &::placeholder {
+            color: lighten($tertiary-blue, 20%);
+        }
+    }
+}

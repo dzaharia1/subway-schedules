@@ -4,7 +4,7 @@
     flex: 1;
     padding: 0 $padding-mobile;
     display: none;
-    overflow-y: hidden;
+    overflow-y: scroll;
 
     &--active {
         display: flex;
@@ -12,9 +12,5 @@
 
     button {
         width: 100%;
-    }
-
-    .edit-stations {
-        margin: 1rem 0 0;
     }
 }

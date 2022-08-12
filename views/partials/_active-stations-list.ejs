@@ -1,15 +1,4 @@
-<ul class="active-stations">
-    <h2>Tracking stations:</h2>
-    <% for (let station of stations) { %>
-    <li class="active-stations__item <% if (trackedStations.find(obj => obj.stopId === station.stopId)) { %>active-stations__item--active<% } %>">
-        <button class="station-button " stopId=<%= station.stopId %>>
-            <h3><%= station.name %></h3>
-            <ul class="station-button__lines">
-                <% for (let line of station.lines) {%>
-                    <li line="<%= line %>"><%= line %></li>
-                <% } %>
-            </ul>
-        </button>
-    </li>
-    <% } %>
+<h2>Tracking stations:</h2>
+<ul class="stations-list active-stations">
+    <%- include('_stations-list'); %>
 </ul>

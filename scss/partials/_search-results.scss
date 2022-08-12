@@ -1,0 +1,15 @@
+.search-results {
+    @extend %vertical-start;
+    width: 100%;
+    display: none;
+
+    &__separator {
+        width: 100%;
+        border-bottom: 2px $primary-white solid;
+        margin-bottom: 1rem;
+    }
+
+    .station-button {
+        background-image: url('../img/add.svg');
+    }
+}

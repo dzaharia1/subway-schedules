@@ -1,0 +1,12 @@
+    <% for (let station of stations) { %>
+    <li class="stations-list__item <% if (trackedStations.find(obj => obj.stopId === station.stopId)) { %>stations-list__item--active<% } %>" stop-id=<%= station.stopId %>>
+        <button class="station-button " stop-id=<%= station.stopId %>>
+            <h3><%= station.name %></h3>
+            <ul class="station-button__lines">
+                <% for (let line of station.lines) {%>
+                    <li line="<%= line %>"><%= line %></li>
+                <% } %>
+            </ul>
+        </button>
+    </li>
+    <% } %>

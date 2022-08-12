@@ -3,7 +3,6 @@
     width: 100vw;
     height: 100%;
     padding: 0 $padding-mobile/2;
-    overflow-y: scroll;
     position: relative;
     
     &__frame {
@@ -11,8 +10,8 @@
         position: relative;
         width: 200vw;
         flex: 1;
-        overflow: visible;
         transition: transform $transition;
+        overflow-y: scroll;
 
         &--left {
             transform: translateX(0);

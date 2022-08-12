@@ -4,6 +4,8 @@
     opacity: 0;
     display: none;
     transition: opacity $transition;
+    // overflow-y: scroll;
+    // flex: 1;
 
     &__separator {
         width: 100%;

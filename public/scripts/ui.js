@@ -38,11 +38,11 @@ let readyFunction = function() {
 
 	searchInput.addEventListener('focus', (e) => {
 		searchInput.setAttribute('placeholder', 'Search stations');
-		toggleStationsViewMode(true);
+		toggleEditStationswMode(true);
 	});
 
 	searchSubmitButton.addEventListener('click', async (e) => {
-		toggleStationsViewMode(false);
+		toggleEditStationswMode(false);
 		let signId = document.querySelector('.header__sign-name').getAttribute('sign-id');
 		let url = `setstops/${signId}?stops=`;
 		let trackedStations = getTrackedStations();
@@ -96,10 +96,9 @@ function searchStations(searchTerm) {
 	}
 }
 
-function toggleStationsViewMode(explicitSetting) {
+function toggleEditStationswMode(explicitSetting) {
 	let main = document.querySelector('main');
 	let modeString = `add-stations-mode`;
-	// let buttonImage = editStationsButton.querySelector('img');
 
 	if (!explicitSetting) {
 		main.classList.remove(modeString);

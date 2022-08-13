@@ -2,15 +2,8 @@
     .header {
         transform: translateY(-60px);
         opacity: 0;
-        transition: transform $transition,
-                    opacity $transition;
-    }
-
-    .search-bar {
-        // display: flex;
-        opacity: 1;
-        transition: top $transition,
-                    opacity $transition;
+        margin-top: -50px;
+        transition: margin $transition;
     }
 
     .sign-mockup {
@@ -41,10 +34,15 @@
         }
     }
 
+    .search-bar__save {
+        background-image: url('../img/check.svg');
+        background-color: $blue-ace;
+        transition: background-color $transition;
+    }
+
     .search-results {
         display: flex;
         flex: 1;
-        overflow-y: scroll;
         opacity: 1;
         transition: opacity $transition;
     }

@@ -1,21 +1,19 @@
 .search-bar {
     @extend %horizontal-center;
     width: 100%;
-    padding: 1rem $padding-mobile;
-    opacity: 0;
+    padding: .25rem 0 .25rem;
 
-    position: absolute;
-    top: 0px;
-    left: 0;
-    right: 0;
-    transition: top $transition,
-                opacity $transition;
+    &__save {
+        width: 3rem !important;
+        height: 3rem;
+        background-image: url('../img/search.svg');
+    }
 
     input {
-        font-size: 2rem;
+        font-size: 1.5rem;
         font-weight: 700;
         color: $primary-white;
-        width: 100%;
+        width: calc(100% - 3rem);
 
         &:focus-visible {
             outline: none;

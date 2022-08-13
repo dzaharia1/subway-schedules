@@ -1,16 +1,12 @@
 <%- include('partials/_head') %>
 <main class="">
 	<%- include('partials/_header') %>
-	<%- include('partials/_search-bar') %>
 	<%- include('partials/_sign-mockup') %>
 	<div class="tab-panel__frame tab-panel__frame--left">
 		<div class="tab-panel tab-panel--stations">
 			<%- include('partials/_active-stations-list') %>
 			<%- include('partials/_search-results') %>
-			<button class="edit-stations">
-				<img src="../img/search.svg" alt="">
-				<p>Edit stations</p>
-			</button>
+			<%- include('partials/_search-bar') %>
 		</div>
 		<div class="tab-panel tab-panel--options">
 			options

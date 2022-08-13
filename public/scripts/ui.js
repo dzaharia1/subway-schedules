@@ -3,8 +3,9 @@ let activeStations = [];
 let searchResultsList;
 let searchResults = [];
 let searchInput;
-let editStationsButton;
+// let editStationsButton;
 let tabButtons;
+let searchSubmitButton;
 
 let readyFunction = function() {
 	activeStationsList = document.querySelector('.active-stations');
@@ -12,7 +13,8 @@ let readyFunction = function() {
 	searchResultsList = document.querySelector('.search-results>.stations-list');
 	searchResults = searchResultsList.querySelectorAll('.stations-list__item');
 	searchInput = document.querySelector('.search-bar>input[type="text"]');
-	editStationsButton = document.querySelector('.edit-stations');
+	searchSubmitButton = document.querySelector('.search-bar__save');
+	// editStationsButton = document.querySelector('.edit-stations');
 	tabButtons = document.querySelectorAll('.tabs>button');
 
 	for (let activeStation of activeStations) {
@@ -27,8 +29,12 @@ let readyFunction = function() {
 		searchStations(searchTerm);
 	});
 
-	editStationsButton.addEventListener('click', (e) => {
-		toggleStationsViewMode();
+	searchInput.addEventListener('focus', (e) => {
+		toggleStationsViewMode(true);
+	});
+
+	searchSubmitButton.addEventListener('click', (e) => {
+		toggleStationsViewMode(false);
 	});
 
 	for (let tabButton of tabButtons) {
@@ -71,23 +77,19 @@ function searchStations(searchTerm) {
 	}
 }
 
-function toggleStationsViewMode() {
+function toggleStationsViewMode(explicitSetting) {
 	let main = document.querySelector('main');
 	let modeString = `add-stations-mode`;
-	let buttonImage = editStationsButton.querySelector('img');
+	// let buttonImage = editStationsButton.querySelector('img');
 
-	if (main.classList.contains(modeString)) {
+	if (!explicitSetting) {
 		main.classList.remove(modeString);
-		buttonImage.setAttribute('src', '../img/search.svg');
 		searchInput.value = '';
-		editStationsButton.querySelector('p').innerText = "Edit stations";
 		setTimeout(() => {
 			clearSearchResults();
 		}, 1000);
 	} else {
 		main.classList.add(modeString);
-		editStationsButton.querySelector('p').innerText = "Save"
-		buttonImage.setAttribute('src', '../img/check.svg');
 		searchInput.focus();
 	}
 }

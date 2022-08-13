@@ -3,8 +3,7 @@
     width: 100%;
     padding: 1rem $padding-mobile;
     opacity: 1;
-    transition: transform $transition,
-                opacity $transition;
+    transition: margin $transition;
 
     &__sign-name {
         flex: 1;

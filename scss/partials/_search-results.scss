@@ -4,8 +4,11 @@
     opacity: 0;
     display: none;
     transition: opacity $transition;
-    // overflow-y: scroll;
-    // flex: 1;
+    overflow-y: scroll;
+
+    h2 {
+        font-size: 1.25rem;
+    }
 
     &__separator {
         width: 100%;

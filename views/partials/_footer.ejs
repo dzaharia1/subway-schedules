@@ -3,7 +3,7 @@
         let signId = "<%= signInfo.signId %>";
         async function APIRequest(verb, route) {
             let url = window.location.href;
-            url = `http://${url.split('/', 3)[2]}/`;
+            url = `${window.location.href.substr(0, 7)}${url.split('/', 3)[2]}/`;
             url += `${route}`;
             console.log(url);
             let response = await fetch(url, { method: verb });

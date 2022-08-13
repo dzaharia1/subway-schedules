@@ -2,7 +2,14 @@
     <% for (let i = 0; i < 2; i ++) { %>
         <li class="sign-mockup__arrival">
             <p class="sign-mockup__arrival-index"><%= i + 1 %></p>
-            <p class="sign-mockup__arrival-line" line="<%= arrivals[i].routeId %>"><%= arrivals[i].routeId %></p>
+            <% let routeId = arrivals[i].routeId %>
+            <% if (routeId[1] == 'X') { %>
+                <div class="sign-mockup__arrival-line" line="<%= routeId[0] %>" express><p><%= routeId[1] %></p></div>
+            <% } else if (routeId === 'GS') { %>
+                <div class="sign-mockup__arrival-line" line="<%= routeId[1] %>"><p><%= routeId[1] %></p></div>
+            <% } else { %>
+                <div class="sign-mockup__arrival-line" line="<%= routeId %>"><p><%= routeId %></p></div>
+            <% } %>
             <h2 class="sign-mockup__arrival-headsign"><%= arrivals[i].headsign%></h2>
             <p class="sign-mockup__arrival-estimate"><%= arrivals[i].minutesUntil %>min</p>
         </li>

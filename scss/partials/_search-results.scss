@@ -16,7 +16,12 @@
         margin-bottom: 1rem;
     }
 
+    
     .station-button {
         background-image: url('../img/add.svg');
+    }
+
+    .stations-list__item--active button {
+        background-image: url('../img/close.svg');
     }
 }

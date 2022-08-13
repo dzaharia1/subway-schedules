@@ -32,6 +32,15 @@
             width: 1.75rem;
             height: 1.75rem;
             border-radius: 50%;
+            font-weight: 700;
+
+            &[express] {
+                transform: rotate(45deg);
+                
+                p {
+                    transform: rotate(-45deg);
+                }
+            }
         }
 
         &-headsign {

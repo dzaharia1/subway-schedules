@@ -3,7 +3,6 @@ let activeStations = [];
 let searchResultsList;
 let searchResults = [];
 let searchInput;
-// let editStationsButton;
 let tabButtons;
 let searchSubmitButton;
 
@@ -14,8 +13,16 @@ let readyFunction = function() {
 	searchResults = searchResultsList.querySelectorAll('.stations-list__item');
 	searchInput = document.querySelector('.search-bar>input[type="text"]');
 	searchSubmitButton = document.querySelector('.search-bar__save');
-	// editStationsButton = document.querySelector('.edit-stations');
 	tabButtons = document.querySelectorAll('.tabs>button');
+
+	for (let button of document.querySelectorAll('.stations-list__item')) {
+		button.addEventListener('click', (e) => {
+			if (checkMode()) {
+				let stopId = button.getAttribute('stop-id');
+				toggleStation(stopId);
+			}
+		});
+	}
 
 	for (let activeStation of activeStations) {
 		if (!activeStation.classList.contains('stations-list__item--active')) {
@@ -30,11 +37,24 @@ let readyFunction = function() {
 	});
 
 	searchInput.addEventListener('focus', (e) => {
+		searchInput.setAttribute('placeholder', 'Search stations');
 		toggleStationsViewMode(true);
 	});
 
-	searchSubmitButton.addEventListener('click', (e) => {
+	searchSubmitButton.addEventListener('click', async (e) => {
 		toggleStationsViewMode(false);
+		let signId = document.querySelector('.header__sign-name').getAttribute('sign-id');
+		let url = `setstops/${signId}?stops=`;
+		let trackedStations = getTrackedStations();
+		for (let station of trackedStations) {
+			url += `${station},`;
+		}
+		url = url.substr(0, url.length - 1);
+
+		let returnData = await APIRequest('PUT', url);
+		setTimeout(() => {
+			window.location.reload();
+		}, 400);
 	});
 
 	for (let tabButton of tabButtons) {
@@ -70,9 +90,8 @@ function searchStations(searchTerm) {
 					correspondingActiveItem = station;
 				}
 			}
-			if (correspondingActiveItem.parentNode !== activeStationsList) {
-				searchResultsList.appendChild(station);
-			}
+
+			searchResultsList.appendChild(station);
 		}
 	}
 }
@@ -92,6 +111,49 @@ function toggleStationsViewMode(explicitSetting) {
 		main.classList.add(modeString);
 		searchInput.focus();
 	}
+}
+
+function toggleStation(stopId) {
+	let activeStationButton;
+	let searchResultButton;
+	let activeString = 'stations-list__item--active';
+
+	for (item of activeStations) {
+		if (item.getAttribute('stop-id') === stopId) { activeStationButton = item; }
+	}
+	
+	for (item of searchResults) {
+		if (item.getAttribute('stop-id') === stopId) { searchResultButton = item; }
+	}
+
+	if (activeStationButton.classList.contains(activeString)) {
+		activeStationButton.classList.remove(activeString);
+		searchResultButton.classList.remove(activeString);
+		activeStationsList.removeChild(activeStationButton);
+		
+	} else {
+		activeStationButton.classList.add(activeString);
+		searchResultButton.classList.add(activeString);
+		activeStationsList.appendChild(activeStationButton);
+	}
+}
+
+function getTrackedStations() {
+	let stopIds = [];
+	for (item of document.querySelectorAll(`.stations-list__item--active`)) {
+		let stopId = item.getAttribute('stop-id');
+		if (stopIds.indexOf(stopId) == -1) {
+			stopIds.push(stopId);
+		}
+	}
+
+	return stopIds;
+}
+
+function checkMode() {
+	let main = document.querySelector('main');
+
+	return main.classList.contains('add-stations-mode');
 }
 
 function clearSearchResults() {

@@ -4,7 +4,19 @@
             <h3><%= station.name %></h3>
             <ul class="station-button__lines">
                 <% for (let line of station.lines) {%>
-                    <li line="<%= line %>"><%= line %></li>
+                    <% if (line[1] == 'X') { %>
+                        <li line="<%= line[0] %>" express>
+                            <p><%= line[0] %></p>
+                        </li>
+                    <% } else if (line === 'GS') { %>
+                        <li line="<%= line[1] %>">
+                            <p><%= line[1] %></p>
+                        </li>
+                    <% } else { %>
+                        <li line="<%= line %>">
+                            <p><%= line %></p>
+                        </li>
+                    <% } %>
                 <% } %>
             </ul>
         </button>

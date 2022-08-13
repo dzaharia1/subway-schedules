@@ -1,0 +1,28 @@
+.tab-panel {
+    @extend %vertical-start;
+    width: 100vw;
+    height: 100%;
+    padding: 0 $padding-mobile/2;
+    position: relative;
+    
+    &__frame {
+        @extend %horizontal-start;
+        position: relative;
+        width: 200vw;
+        flex: 1;
+        transition: transform $transition;
+        overflow-y: scroll;
+
+        &--left {
+            transform: translateX(0);
+        }
+
+        &--right {
+            transform: translateX(-100vw);
+        }
+    }
+
+    button {
+        width: 100%;
+    }
+}

@@ -1,0 +1,27 @@
+.search-results {
+    @extend %vertical-start;
+    width: 100%;
+    opacity: 0;
+    display: none;
+    transition: opacity $transition;
+    overflow-y: scroll;
+
+    h2 {
+        font-size: 1.25rem;
+    }
+
+    &__separator {
+        width: 100%;
+        border-bottom: 1px $primary-white solid;
+        margin-bottom: 1rem;
+    }
+
+    
+    .station-button {
+        background-image: url('../img/add.svg');
+    }
+
+    .stations-list__item--active button {
+        background-image: url('../img/close.svg');
+    }
+}

@@ -1,20 +1,19 @@
+@import 'scaffolding/resets';
 @import 'scaffolding/utilities';
 @import 'scaffolding/type';
 @import 'scaffolding/colors';
 @import 'scaffolding/variables';
-@import 'partials/stationselector';
-@import 'partials/arrivals-list';
+@import 'partials/button';
+@import 'partials/tab-panel';
+@import 'partials/station-button';
+@import 'partials/header';
 @import 'partials/search-bar';
-
-* {
-	box-sizing: border-box;
-	padding: 0;
-	margin: 0;
-}
-
-a {
-	text-decoration: none;
-}
+@import 'partials/sign-mockup';
+@import 'partials/stations-list';
+@import 'partials/search-results';
+@import 'partials/tabs';
+@import 'partials/add-stations-mode';
+@import 'partials/active-stations';
 
 .hidden {
 	display: none;
@@ -29,9 +28,9 @@ body {
 
 main {
 	@extend %vertical-start;
-	width: 100%;
+	width: 100vw;
 	height: 100vh;
-	padding: 24px;
+	overflow: hidden;
 }
 
 .submit {

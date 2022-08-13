@@ -32,7 +32,7 @@ async function runQuery(query) {
 }
 
 module.exports = {
-    getSignInfo: async (signId) => {
+    getSignConfig: async (signId) => {
         return await runQuery(`
             SELECT * FROM signs WHERE sign_id='${signId}';
         `);

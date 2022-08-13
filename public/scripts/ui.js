@@ -1,136 +1,163 @@
-let stopSelector;
-let arrivalItems;
-let stationSelectorItems;
-let stationSelector;
-let searchBarInput;
-let submitButton;
-let selectionIndicator;
-let stationName;
-let trackedStations = [];
-let searchBarClose;
+let activeStationsList;
+let activeStations = [];
+let searchResultsList;
+let searchResults = [];
+let searchInput;
+let tabButtons;
+let searchSubmitButton;
 
 let readyFunction = function() {
-	stopSelector = document.querySelector('#stop-selector');
-	arrivalItems = document.querySelectorAll('.arrival');
-	stationSelector = document.querySelector('.station-selector__list');
-	stationSelectorItems = document.querySelectorAll('.station-selector__station');
-	searchBarInput = document.querySelector('.search-bar__input');
-	searchBarClose = document.querySelector('.search-bar__close-button');
-	stationName = searchBarInput.placeholder;
-	submitButton = document.querySelector('.submit');
-	selectionIndicator = document.querySelector('.station-selector__selection-indicator');
+	activeStationsList = document.querySelector('.active-stations');
+	activeStations = activeStationsList.querySelectorAll('.stations-list__item');
+	searchResultsList = document.querySelector('.search-results>.stations-list');
+	searchResults = searchResultsList.querySelectorAll('.stations-list__item');
+	searchInput = document.querySelector('.search-bar>input[type="text"]');
+	searchSubmitButton = document.querySelector('.search-bar__save');
+	tabButtons = document.querySelectorAll('.tabs>button');
 
-	for (let selector of stationSelectorItems) {
-		stationSelector.removeChild(selector);
-		const checkbox = selector.querySelector('input');
-		
-		checkbox.addEventListener('change', () => {
-			const stopid = selector.getAttribute(`id`);
-			const indicator = document.querySelector(`button[id="${stopid}"]`);
-
-			if (!checkbox.checked) {
-				indicator.classList.remove('station-selector__selection-indicator-item--active');
-				trackedStations.splice(trackedStations.indexOf(stopid), 1);
-			} else {
-				indicator.classList.add('station-selector__selection-indicator-item--active');
-				trackedStations.push(stopid);
+	for (let button of document.querySelectorAll('.stations-list__item')) {
+		button.addEventListener('click', (e) => {
+			if (checkMode()) {
+				let stopId = button.getAttribute('stop-id');
+				toggleStation(stopId);
 			}
-			stationSelector.parentNode.style.top = `${selectionIndicator.getBoundingClientRect().bottom}px`;
-			console.log(trackedStations);
 		});
 	}
 
-	for (let indicator of selectionIndicator.querySelectorAll('button')) {
-		if (indicator.classList.contains("station-selector__selection-indicator-item--active")) {
-			trackedStations.push(indicator.id);
-		}
-
-		indicator.addEventListener('click', () => {
-			let stationCheckbox = getStationCheckbox(indicator.id);
-			console.log(stationCheckbox);
-			stationCheckbox.checked = false;
-			indicator.classList.remove('station-selector__selection-indicator-item--active');
-			trackedStations.splice(trackedStations.indexOf(indicator.id), 1);
-			stationSelector.parentNode.style.top = `${selectionIndicator.getBoundingClientRect().bottom}px`;
-		});
-	}
-
-	for (arrival of arrivalItems) {
-		let time = arrival.querySelector('p:last-child');
-		if (time.innerText == '0 min') {
-			console.log('oh boy');
-			time.classList.add('warn');
+	for (let activeStation of activeStations) {
+		if (!activeStation.classList.contains('stations-list__item--active')) {
+			activeStation.parentNode.removeChild(activeStation);
 		}
 	}
+	clearSearchResults();
 
-	searchBarInput.addEventListener('input', (e) => {
-		let searchTerm = searchBarInput.value.toLowerCase();
-		searchBarClose.classList.add('search-bar__close-button--active')
-		stationSelector.innerHTML = '';
-		stationSelector.parentNode.style.top = `${selectionIndicator.getBoundingClientRect().bottom}px`;
-
-		for (let station of stationSelectorItems) {
-			let stationName = station.getAttribute('data-name').toLowerCase();
-			if (stationName.indexOf(searchTerm) > -1) {
-				stationSelector.appendChild(station);
-			}
-		}
-
-		if (stationSelector.innerHTML != '') {
-			stationSelector.parentNode.style.display = 'flex';
-		} else {
-			stationSelector.parentNode.style.display = 'none';
-		}
+	searchInput.addEventListener('input', (e) => {
+		let searchTerm = searchInput.value;
+		searchStations(searchTerm);
 	});
 
-	searchBarClose.addEventListener('click', () => {
-		stationSelector.innerHTML = '';
-		searchBarInput.value = '';
-		stationSelector.parentNode.style.display = 'none';
-		searchBarClose.classList.remove('search-bar__close-button--active');
+	searchInput.addEventListener('focus', (e) => {
+		searchInput.setAttribute('placeholder', 'Search stations');
+		toggleStationsViewMode(true);
 	});
 
-	submitButton.addEventListener('click', async (e) => {
+	searchSubmitButton.addEventListener('click', async (e) => {
+		toggleStationsViewMode(false);
+		let signId = document.querySelector('.header__sign-name').getAttribute('sign-id');
 		let url = `setstops/${signId}?stops=`;
+		let trackedStations = getTrackedStations();
 		for (let station of trackedStations) {
 			url += `${station},`;
 		}
 		url = url.substr(0, url.length - 1);
 
 		let returnData = await APIRequest('PUT', url);
-		window.location.reload();
+		setTimeout(() => {
+			window.location.reload();
+		}, 400);
 	});
+
+	for (let tabButton of tabButtons) {
+		tabButton.addEventListener ('click', (e) => {
+			let targetClassname = `tab-panel__frame--${tabButton.getAttribute('target-frame')}`;
+			let leftClassname = `tab-panel__frame--left`;
+			let rightClassname = `tab-panel__frame--right`;
+			let tabFrame = document.querySelector('.tab-panel__frame');
+			tabFrame.classList.remove(leftClassname);
+			tabFrame.classList.remove(rightClassname);
+			tabFrame.classList.add(targetClassname);
+
+			for (let button of tabButtons){
+				button.classList.remove('tabs__item--active');
+			}
+
+			tabButton.classList.add('tabs__item--active');
+		});
+	}
 }
 
-function getStationCheckbox(stopid) {
-	for (let station of stationSelectorItems) {
-		if (station.id === stopid) {
-			return station.querySelector('input');
+function searchStations(searchTerm) {
+	searchTerm = searchTerm.toLowerCase();
+	clearSearchResults();
+
+	for (let station of searchResults) {
+		let stopName = station.querySelector('h3').innerText.toLowerCase();
+		if (stopName.includes(searchTerm)) {
+			let stopId = station.getAttribute('stop-id');
+			let correspondingActiveItem;
+			for (let station of activeStations) {
+				if (station.getAttribute('stop-id') === stopId) {
+					correspondingActiveItem = station;
+				}
+			}
+
+			searchResultsList.appendChild(station);
 		}
 	}
 }
 
-function setSelectedStationIndicator(station) {
-	let indicator = document.createElement('button');
-	let name = station.getAttribute('data-name');
-	let stopid = station.getAttribute('data-stopid');
-	let lines = station.querySelectorAll('.station-selector__station-line');
-	indicator.classList.add('station-selector__selection-indicator-item')
+function toggleStationsViewMode(explicitSetting) {
+	let main = document.querySelector('main');
+	let modeString = `add-stations-mode`;
+	// let buttonImage = editStationsButton.querySelector('img');
 
-	indicator.setAttribute('data-name', name);
-	indicator.setAttribute('data-stopid', stopid);
-	indicator.innerHTML = `<p>${name}</p>`;
-	for (let line of lines) {
-		indicator.innerHTML += `<span line="${line.innerText}">${line.innerText}</span>`
+	if (!explicitSetting) {
+		main.classList.remove(modeString);
+		searchInput.value = '';
+		setTimeout(() => {
+			clearSearchResults();
+		}, 1000);
+	} else {
+		main.classList.add(modeString);
+		searchInput.focus();
+	}
+}
+
+function toggleStation(stopId) {
+	let activeStationButton;
+	let searchResultButton;
+	let activeString = 'stations-list__item--active';
+
+	for (item of activeStations) {
+		if (item.getAttribute('stop-id') === stopId) { activeStationButton = item; }
+	}
+	
+	for (item of searchResults) {
+		if (item.getAttribute('stop-id') === stopId) { searchResultButton = item; }
 	}
 
-	indicator.addEventListener('click', (e) => {
-		let stationSelectorItem = getStationSelectorItem(stopid);
-		stationSelectorItem.querySelector('input').checked = false;
-		indicator.parentNode.removeChild(indicator);
-	});
+	if (activeStationButton.classList.contains(activeString)) {
+		activeStationButton.classList.remove(activeString);
+		searchResultButton.classList.remove(activeString);
+		activeStationsList.removeChild(activeStationButton);
+		
+	} else {
+		activeStationButton.classList.add(activeString);
+		searchResultButton.classList.add(activeString);
+		activeStationsList.appendChild(activeStationButton);
+	}
+}
 
-	selectionIndicator.appendChild(indicator);
+function getTrackedStations() {
+	let stopIds = [];
+	for (item of document.querySelectorAll(`.stations-list__item--active`)) {
+		let stopId = item.getAttribute('stop-id');
+		if (stopIds.indexOf(stopId) == -1) {
+			stopIds.push(stopId);
+		}
+	}
+
+	return stopIds;
+}
+
+function checkMode() {
+	let main = document.querySelector('main');
+
+	return main.classList.contains('add-stations-mode');
+}
+
+function clearSearchResults() {
+	searchResultsList.innerHTML = '';
 }
 
 if (document.readyState != 'loading') {

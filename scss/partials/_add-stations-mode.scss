@@ -1,0 +1,49 @@
+.add-stations-mode {
+    .header {
+        transform: translateY(-60px);
+        opacity: 0;
+        margin-top: -50px;
+        transition: margin $transition;
+    }
+
+    .sign-mockup {
+        max-height: 0px;
+        margin: 0px;
+        padding: 0px;
+        transition: max-height $transition,
+                    margin $transition,
+                    padding $transition;
+    }
+
+    .tabs {
+        max-height: 0px;
+        transition: max-height $transition;
+    }
+
+    .station-button__lines {
+        margin-right: 2rem;
+        transition: margin $transition;
+    }
+
+    .active-stations {
+        flex: none;
+        margin-bottom: 1rem;
+
+        .station-button {
+            background-image: url('../img/close.svg');
+        }
+    }
+
+    .search-bar__save {
+        background-image: url('../img/check.svg');
+        background-color: $blue-ace;
+        transition: background-color $transition;
+    }
+
+    .search-results {
+        display: flex;
+        flex: 1;
+        opacity: 1;
+        transition: opacity $transition;
+    }
+}

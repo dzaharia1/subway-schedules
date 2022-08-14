@@ -6,6 +6,7 @@ let searchInput;
 let tabButtons;
 let searchSubmitButton;
 let checkboxExpanders;
+let signInfo;
 
 let readyFunction = function() {
 	activeStationsList = document.querySelector('.active-stations');
@@ -16,6 +17,8 @@ let readyFunction = function() {
 	searchSubmitButton = document.querySelector('.search-bar__save');
 	tabButtons = document.querySelectorAll('.tabs>button');
 	checkboxExpanders = document.querySelectorAll('.checkbox-expander');
+
+	signInfo = getSignInfo();
 
 	for (let button of document.querySelectorAll('.stations-list__item')) {
 		button.addEventListener('click', (e) => {
@@ -171,6 +174,12 @@ function checkMode() {
 
 function clearSearchResults() {
 	searchResultsList.innerHTML = '';
+}
+
+async function getSignInfo() {
+	let signId = document.querySelector('.header__sign-name').getAttribute('sign-id');
+	let signInfo = await APIRequest('GET', `signinfo/${signId}`);
+	return signInfo;
 }
 
 if (document.readyState != 'loading') {

@@ -75,49 +75,9 @@ app.put('/setstops/:signId', async (req, res) => {
   res.json(returnInfo);
 });
 
-app.get('/api/tripupdates', (req, res) => {
-  let tripUpdatesArray = []
-  let feeds = [];
-  if (req.query.feeds) {
-    feeds = req.query.feeds.split(',');
-  } else {
-    feeds = ['ACE'];
-  }
-
-  gtfs.getTripUpdates(feeds, tripUpdatesArray, (updatesArray) => {
-    res.json(updatesArray);
-  });
-});
-
-app.get('/api/routes', (req, res) => {
-  res.json(gtfs.routes);
-});
-
-app.get('/api/stations', (req, res) => {
-  res.json(gtfs.stations);
-});
-
-app.get('/api/station/:stopid', (req, res) => {
-  for (let i = 0; i < stations.length; i ++) {
-    if (stations[i].stopId === req.params.stopid) {
-      res.json(gtfs.stations[i]);
-    }
-  }
-});
-
-app.put('/api/servicetotrack/:service', (req, res) => {
-  trackingService = req.params.service;
-});
-
-app.put('/api/stationtotrack/:station', (req, res) => {
-  trackingStation = req.params.station;
-});
-
-app.get('/api/arrivals/:stopid', (req, res) => {
-  // res.json(gtfs.getStationSchedule(req.params.stopId, req.params.service));
-  gtfs.getStationSchedule(req.params.stopid, minimumTime, [], [], (schedule) => {
-    res.json(schedule.filter(obj => obj.routeId === req.params.service));
-  });
+app.get('/signinfo/:signId', async (req, res) => {
+  let signInfo = await postgres.getSignConfig(req.params.signId);
+  res.json(signInfo[0]);
 });
 
 var server = app.listen(app.get('port'), () => {

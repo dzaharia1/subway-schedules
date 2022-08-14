@@ -5,6 +5,7 @@ let searchResults = [];
 let searchInput;
 let tabButtons;
 let searchSubmitButton;
+let checkboxExpanders;
 
 let readyFunction = function() {
 	activeStationsList = document.querySelector('.active-stations');
@@ -14,6 +15,7 @@ let readyFunction = function() {
 	searchInput = document.querySelector('.search-bar>input[type="text"]');
 	searchSubmitButton = document.querySelector('.search-bar__save');
 	tabButtons = document.querySelectorAll('.tabs>button');
+	checkboxExpanders = document.querySelectorAll('.checkbox-expander');
 
 	for (let button of document.querySelectorAll('.stations-list__item')) {
 		button.addEventListener('click', (e) => {
@@ -72,6 +74,18 @@ let readyFunction = function() {
 			}
 
 			tabButton.classList.add('tabs__item--active');
+		});
+	}
+
+	for (let checkboxExpander of checkboxExpanders) {
+		let checkbox = checkboxExpander.querySelector('input[type="checkbox"]');
+		checkbox.addEventListener('change', (e) => {
+			let activeString = 'checkbox-expander--active';
+			if (checkbox.checked) {
+				checkboxExpander.classList.add(activeString);
+			} else {
+				checkboxExpander.classList.remove(activeString);
+			}
 		});
 	}
 }

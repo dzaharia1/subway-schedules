@@ -1,0 +1,12 @@
+.options {
+    flex: 1;
+    overflow-y: scroll;
+
+    h2 {
+        margin-bottom: 1rem;
+    }
+
+    &__submit {
+        margin-top: 1rem;;
+    }
+}

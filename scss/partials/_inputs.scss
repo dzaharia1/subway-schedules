@@ -2,14 +2,16 @@
     width: 100%;
     margin-bottom: 2rem;
 
-    input[type="text"] {
+    input[type="text"],
+    input[type="number"],
+    input[type="time"] {
+        @extend %helvetica;
         width: 100%;
         padding: 1rem 1.25rem;
         border-radius: 4px;
         border: 1px $tertiary-blue solid;
         background-color: $secondary-blue;
         margin: .5rem 0 0 0;
-
         font-size: 1.2rem;
         font-weight: 700;
         color: $primary-white;
@@ -31,6 +33,7 @@
 
     .warning {
         color: $orange-bdfm;
+        font-weight: 700;
     }
 }
 
@@ -81,6 +84,7 @@
         justify-content: space-between;
         margin-bottom: 0rem;
         transition: margin-bottom $transition;
+        font-weight: 700;
     }
 
     input[type="checkbox"],
@@ -130,7 +134,9 @@
             right: .75rem;
         }
 
-        input[type="text"] {
+        input[type="text"],
+        input[type="number"],
+        input[type="time"] {
             border: none;
             background-color: $tertiary-blue;
             padding: .4rem .75rem;

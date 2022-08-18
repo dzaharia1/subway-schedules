@@ -29,12 +29,23 @@ app.get('/sign/:signId', async (req, res) => {
   let signInfo = await postgres.getSignConfig(signId);
   let stations = signInfo[0].stations;
   let directionFilter = signInfo[0].direction;
-  let minimumTime = signInfo[0]['minimum_time'];
+  let minimumTime = signInfo[0].minimum_time;
+  
   gtfs.getStationSchedules(stations, minimumTime, [], [], (schedule) => {
     if (directionFilter) {
       schedule = schedule.filter(obj => obj.stopId.includes(directionFilter));
     }
-    res.json(schedule.slice(0, 10));
+    schedule = schedule.slice(0, signInfo[0].max_arrivals_to_show);
+    schedule.push({
+      rotating: signInfo[0].rotating,
+      shutOffSchedule: signInfo[0].shutoff_schedule,
+      turnOnTime: signInfo[0].turnon_time,
+      shutOffTime: signInfo[0].turnoff_time,
+      warnTime: signInfo[0].warn_time,
+      signOn: signInfo[0].sign_on,
+      rotationTime: signInfo[0].rotation_time
+    });
+    res.json(schedule);
   });
 });
 
@@ -78,6 +89,30 @@ app.put('/setstops/:signId', async (req, res) => {
 app.get('/signinfo/:signId', async (req, res) => {
   let signInfo = await postgres.getSignConfig(req.params.signId);
   res.json(signInfo[0]);
+});
+
+app.put('/signinfo/:signId', async (req, res) => {
+  let signId = req.params.signId;
+  let signDirection = req.query.signDirection;
+  let signRotation = req.query.signRotation;
+	let numArrivals = req.query.numArrivals;
+	let cycleTime = req.query.cycleTime;
+	let autoOff = req.query.autoOff;
+	let autoOffStart = req.query.autoOffStart;
+	let autoOffEnd = req.query.autoOffEnd;
+  console.log(req.query);
+
+  res.json(await postgres.setSignConfig(
+    signId,
+    {
+      signDirection: signDirection.toUpperCase(),
+      signRotation: signRotation,
+      numArrivals: numArrivals,
+      cycleTime: cycleTime,
+      autoOff: autoOff,
+      autoOffStart: autoOffStart,
+      autoOffEnd: autoOffEnd
+  }));
 });
 
 var server = app.listen(app.get('port'), () => {

@@ -6,6 +6,7 @@ let searchInput;
 let tabButtons;
 let searchSubmitButton;
 let checkboxExpanders;
+let optionsSubmit;
 let signInfo;
 
 let readyFunction = function() {
@@ -17,6 +18,7 @@ let readyFunction = function() {
 	searchSubmitButton = document.querySelector('.search-bar__save');
 	tabButtons = document.querySelectorAll('.tabs>button');
 	checkboxExpanders = document.querySelectorAll('.checkbox-expander');
+	optionsSubmit = document.querySelector('.options__submit');
 
 	signInfo = getSignInfo();
 
@@ -91,6 +93,10 @@ let readyFunction = function() {
 			}
 		});
 	}
+
+	optionsSubmit.addEventListener('click', () => {
+		setSignInfo();
+	});
 }
 
 function searchStations(searchTerm) {
@@ -180,6 +186,28 @@ async function getSignInfo() {
 	let signId = document.querySelector('.header__sign-name').getAttribute('sign-id');
 	let signInfo = await APIRequest('GET', `signinfo/${signId}`);
 	return signInfo;
+}
+
+async function setSignInfo() {
+	let signDirection = null;
+	if (document.querySelector('[name="show-direction"]').checked) {
+		signDirection = document.querySelector('[name="direction"]:checked').value;
+	}
+	let signRotation = document.querySelector('[name="rotation"]').checked;
+	let numArrivals = document.querySelector('#num-arrivals').value;
+	let cycleTime = document.querySelector('#cycle-time').value;
+	let autoOff = document.querySelector('#auto-off-select').checked;
+	let autoOffStart = document.querySelector('#auto-off-start').value;
+	let autoOffEnd = document.querySelector('#auto-off-end').value;
+
+	let signId = document.querySelector('.header__sign-name').getAttribute('sign-id');
+	let url = `signinfo/${signId}?signDirection=${signDirection}&signRotation=${signRotation}&numArrivals=${numArrivals}&cycleTime=${cycleTime}&autoOff=${autoOff}&autoOffStart=${autoOffStart}&autoOffEnd=${autoOffEnd}`;
+	let returnData = await APIRequest('PUT', url);
+	
+	setTimeout(() => {
+		window.location.reload();
+	}, 400);
+
 }
 
 if (document.readyState != 'loading') {

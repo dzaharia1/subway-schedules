@@ -1,0 +1,68 @@
+<form action="" class="options">
+    <div class="input">
+        <label for="minutes-until">Show arrivals no earlier than...</label>
+        <input type="text" id="minutes-until" value="<%= signInfo.minimum_time %>">
+        <p class="input__unit">minutes</p>
+    </div>
+    <div class="input">
+        <label for="warn-time"><span class="warning">Warn</span> when trains are arriving within...</label>
+        <input type="text" id="warn-time" value="<%= signInfo.warn_time %>">
+        <p class="input__unit">minutes</p>
+    </div>
+    <div class="checkbox-expander <% if (signInfo.direction) { %>checkbox-expander--active<% } %>">
+        <label class="checkbox-expander__label" for="direction-select">Choose a direction to show
+            <input type="checkbox" id="direction-select" name="show-direction" <% if (signInfo.direction) { %>checked<% } %>>
+        </label>
+        <div class="checkbox-expander__expanded-content" >
+            <p class="checkbox-expander__description">The sign will only show trains going in the chosen direction.</p>
+            <fieldset id="direction">
+                <label class="checkbox-expander__label" for="">
+                    <input type="radio" name="direction" value="N" <%if (signInfo.direction === 'N') { %>checked<% } %>>
+                    Uptown
+                </label>
+                <label class="checkbox-expander__label" for="">
+                    <input type="radio" name="direction" value="S" <%if (signInfo.direction === 'S') { %>checked<% } %>>
+                    Downtown
+                </label>
+            </fieldset>
+        </div>
+    </div>
+    <div class="checkbox-expander <% if (signInfo.rotating) { %>checkbox-expander--active<% } %>">
+        <label for="rotation-select" class="checkbox-expander__label"> Rotate the second row
+            <input type="checkbox" id="rotation-select" name="rotation" <% if (signInfo.rotating) { %>checked<% } %>>
+        </label>
+        <div class="checkbox-expander__expanded-content">
+            <p class="checkbox-expander__description">Rotate the arrival shown on the second row of the display, while always showing the next arrival on the first line.</p>
+            <div class="input">
+                <label for="num-arrivals">Show up to...</label>
+                <input type="number" id="num-arrivals" value="<%= signInfo.max_arrivals_to_show %>">
+                <p class="input__unit">arrivals</p>
+            </div>
+            <div class="input">
+                <label for="cycle-time">Cycle the second row every...</label>
+                <input type="number" id="cycle-time" value="<%= signInfo.rotation_time %>">
+                <p class="input__unit">seconds</p>
+            </div>
+        </div>
+    </div>
+    <div class="checkbox-expander <% if (signInfo.shutoff_schedule) { %>checkbox-expander--active<% } %>" name="auto-off">
+        <label for="auto-off-select" class="checkbox-expander__label"> Turn the display off automatically
+            <input type="checkbox" id="auto-off-select" name="auto-off" <% if (signInfo.shutoff_schedule) { %>checked<% } %>>
+        </label>
+        <div class="checkbox-expander__expanded-content">
+            <p class="checkbox-expander__description">Turn the display off between the specified times.</p>
+            <div class="input">
+                <label for="num-arrivals">Turn off at...</label>
+                <input type="time" id="auto-off-start" value="22:00">
+            </div>
+            <div class="input">
+                <label for="cycle-time">Turn on at...</label>
+                <input type="time" id="auto-off-end" value="07:00">
+            </div>
+        </div>
+    </div>
+</form>
+<button class="options__submit">
+    <img src="../img/check.svg" alt="">
+    Save
+</button>

@@ -1,0 +1,21 @@
+.options {
+    flex: 1;
+    overflow-y: scroll;
+
+    h2 {
+        margin-bottom: 1rem;
+    }
+
+    &__submit {
+        margin-top: 1rem;
+        transition: background-color $transition;
+
+        &--saving {
+            background-color: $blue-ace;
+        }
+
+        &--saved {
+            background-color: $green-g;
+        }
+    }
+}

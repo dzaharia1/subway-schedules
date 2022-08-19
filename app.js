@@ -29,12 +29,24 @@ app.get('/sign/:signId', async (req, res) => {
   let signInfo = await postgres.getSignConfig(signId);
   let stations = signInfo[0].stations;
   let directionFilter = signInfo[0].direction;
-  let minimumTime = signInfo[0]['minimum_time'];
+  let minimumTime = signInfo[0].minimum_time;
+  
   gtfs.getStationSchedules(stations, minimumTime, [], [], (schedule) => {
-    if (directionFilter) {
+    if (directionFilter && directionFilter != '') {
       schedule = schedule.filter(obj => obj.stopId.includes(directionFilter));
     }
-    res.json(schedule.slice(0, 10));
+    schedule = schedule.slice(0, signInfo[0].max_arrivals_to_show);
+    schedule.unshift({
+      rotating: signInfo[0].rotating,
+      numArrivals: signInfo[0].max_arrivals_to_show,
+      shutOffSchedule: signInfo[0].shutoff_schedule,
+      turnOnTime: signInfo[0].turnon_time,
+      shutOffTime: signInfo[0].turnoff_time,
+      warnTime: signInfo[0].warn_time,
+      signOn: signInfo[0].sign_on,
+      rotationTime: signInfo[0].rotation_time
+    });
+    res.json(schedule);
   });
 });
 
@@ -53,7 +65,7 @@ app.get('/web/:signId', async (req, res) => {
     }
     viewData.stations = gtfs.stations;
     viewData.routes = gtfs.routes;
-    if (directionFilter) {
+    if (directionFilter && directionFilter != '') {
       viewData.arrivals = schedule.filter(obj => obj.stopId.includes(directionFilter));
     } else {
       viewData.arrivals = schedule;
@@ -75,49 +87,32 @@ app.put('/setstops/:signId', async (req, res) => {
   res.json(returnInfo);
 });
 
-app.get('/api/tripupdates', (req, res) => {
-  let tripUpdatesArray = []
-  let feeds = [];
-  if (req.query.feeds) {
-    feeds = req.query.feeds.split(',');
-  } else {
-    feeds = ['ACE'];
-  }
-
-  gtfs.getTripUpdates(feeds, tripUpdatesArray, (updatesArray) => {
-    res.json(updatesArray);
-  });
+app.get('/signinfo/:signId', async (req, res) => {
+  let signInfo = await postgres.getSignConfig(req.params.signId);
+  res.json(signInfo[0]);
 });
 
-app.get('/api/routes', (req, res) => {
-  res.json(gtfs.routes);
-});
+app.put('/signinfo/:signId', async (req, res) => {
+  let signId = req.params.signId;
+  let signDirection = req.query.signDirection;
+  let signRotation = req.query.signRotation;
+	let numArrivals = req.query.numArrivals;
+	let cycleTime = req.query.cycleTime;
+	let autoOff = req.query.autoOff;
+	let autoOffStart = req.query.autoOffStart;
+	let autoOffEnd = req.query.autoOffEnd;
 
-app.get('/api/stations', (req, res) => {
-  res.json(gtfs.stations);
-});
-
-app.get('/api/station/:stopid', (req, res) => {
-  for (let i = 0; i < stations.length; i ++) {
-    if (stations[i].stopId === req.params.stopid) {
-      res.json(gtfs.stations[i]);
-    }
-  }
-});
-
-app.put('/api/servicetotrack/:service', (req, res) => {
-  trackingService = req.params.service;
-});
-
-app.put('/api/stationtotrack/:station', (req, res) => {
-  trackingStation = req.params.station;
-});
-
-app.get('/api/arrivals/:stopid', (req, res) => {
-  // res.json(gtfs.getStationSchedule(req.params.stopId, req.params.service));
-  gtfs.getStationSchedule(req.params.stopid, minimumTime, [], [], (schedule) => {
-    res.json(schedule.filter(obj => obj.routeId === req.params.service));
-  });
+  res.json(await postgres.setSignConfig(
+    signId,
+    {
+      signDirection: signDirection.toUpperCase(),
+      signRotation: signRotation,
+      numArrivals: numArrivals,
+      cycleTime: cycleTime,
+      autoOff: autoOff,
+      autoOffStart: autoOffStart,
+      autoOffEnd: autoOffEnd
+  }));
 });
 
 var server = app.listen(app.get('port'), () => {

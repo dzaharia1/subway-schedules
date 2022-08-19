@@ -5,6 +5,9 @@ let searchResults = [];
 let searchInput;
 let tabButtons;
 let searchSubmitButton;
+let checkboxExpanders;
+let optionsSubmit;
+let signInfo;
 
 let readyFunction = function() {
 	activeStationsList = document.querySelector('.active-stations');
@@ -14,6 +17,10 @@ let readyFunction = function() {
 	searchInput = document.querySelector('.search-bar>input[type="text"]');
 	searchSubmitButton = document.querySelector('.search-bar__save');
 	tabButtons = document.querySelectorAll('.tabs>button');
+	checkboxExpanders = document.querySelectorAll('.checkbox-expander');
+	optionsSubmit = document.querySelector('.options__submit');
+
+	signInfo = getSignInfo();
 
 	for (let button of document.querySelectorAll('.stations-list__item')) {
 		button.addEventListener('click', (e) => {
@@ -74,6 +81,35 @@ let readyFunction = function() {
 			tabButton.classList.add('tabs__item--active');
 		});
 	}
+
+	for (let checkboxExpander of checkboxExpanders) {
+		let checkbox = checkboxExpander.querySelector('input[type="checkbox"]');
+		checkbox.addEventListener('change', (e) => {
+			let activeString = 'checkbox-expander--active';
+			if (checkbox.checked) {
+				checkboxExpander.classList.add(activeString);
+			} else {
+				checkboxExpander.classList.remove(activeString);
+			}
+		});
+	}
+
+	optionsSubmit.addEventListener('click', () => {
+		optionsSubmit.classList.add('options__submit--saving');
+		optionsSubmit.innerText = "Saving..."
+
+		setSignInfo(() => {
+			optionsSubmit.classList.remove('options__submit--saving');
+			optionsSubmit.classList.add('options__submit--saved');
+			optionsSubmit.innerText = "Saved"
+			setTimeout(() => {
+				optionsSubmit.classList.remove('options__submit--saved');
+				optionsSubmit.innerHTML = `
+					<img src="../img/check.svg" alt="">
+					Save`;
+			}, 2500);
+		});
+	});
 }
 
 function searchStations(searchTerm) {
@@ -157,6 +193,32 @@ function checkMode() {
 
 function clearSearchResults() {
 	searchResultsList.innerHTML = '';
+}
+
+async function getSignInfo() {
+	let signId = document.querySelector('.header__sign-name').getAttribute('sign-id');
+	let signInfo = await APIRequest('GET', `signinfo/${signId}`);
+	return signInfo;
+}
+
+async function setSignInfo(callback) {
+	let signDirection = '';
+	if (document.querySelector('[name="show-direction"]').checked) {
+		signDirection = document.querySelector('[name="direction"]:checked').value;
+	}
+	let signRotation = document.querySelector('[name="rotation"]').checked;
+	let numArrivals = document.querySelector('#num-arrivals').value;
+	let cycleTime = document.querySelector('#cycle-time').value;
+	let autoOff = document.querySelector('#auto-off-select').checked;
+	let autoOffStart = document.querySelector('#auto-off-start').value;
+	let autoOffEnd = document.querySelector('#auto-off-end').value;
+
+	let signId = document.querySelector('.header__sign-name').getAttribute('sign-id');
+	let url = `signinfo/${signId}?signDirection=${signDirection}&signRotation=${signRotation}&numArrivals=${numArrivals}&cycleTime=${cycleTime}&autoOff=${autoOff}&autoOffStart=${autoOffStart}&autoOffEnd=${autoOffEnd}`;
+	let returnData = await APIRequest('PUT', url);
+	
+	callback();
+
 }
 
 if (document.readyState != 'loading') {

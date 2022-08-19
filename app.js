@@ -76,7 +76,6 @@ app.get('/web/:signId', async (req, res) => {
 });
 
 app.put('/setstops/:signId', async (req, res) => {
-  console.log('running setstops');
   let signId = req.params.signId;
   let stops = req.query.stops.split(',');
   let stopsString = "";
@@ -103,7 +102,6 @@ app.put('/signinfo/:signId', async (req, res) => {
 	let autoOff = req.query.autoOff;
 	let autoOffStart = req.query.autoOffStart;
 	let autoOffEnd = req.query.autoOffEnd;
-  console.log(req.query);
 
   res.json(await postgres.setSignConfig(
     signId,

@@ -95,7 +95,20 @@ let readyFunction = function() {
 	}
 
 	optionsSubmit.addEventListener('click', () => {
-		setSignInfo();
+		optionsSubmit.classList.add('options__submit--saving');
+		optionsSubmit.innerText = "Saving..."
+
+		setSignInfo(() => {
+			optionsSubmit.classList.remove('options__submit--saving');
+			optionsSubmit.classList.add('options__submit--saved');
+			optionsSubmit.innerText = "Saved"
+			setTimeout(() => {
+				optionsSubmit.classList.remove('options__submit--saved');
+				optionsSubmit.innerHTML = `
+					<img src="../img/check.svg" alt="">
+					Save`;
+			}, 2500);
+		});
 	});
 }
 
@@ -188,8 +201,8 @@ async function getSignInfo() {
 	return signInfo;
 }
 
-async function setSignInfo() {
-	let signDirection = null;
+async function setSignInfo(callback) {
+	let signDirection = '';
 	if (document.querySelector('[name="show-direction"]').checked) {
 		signDirection = document.querySelector('[name="direction"]:checked').value;
 	}
@@ -204,9 +217,7 @@ async function setSignInfo() {
 	let url = `signinfo/${signId}?signDirection=${signDirection}&signRotation=${signRotation}&numArrivals=${numArrivals}&cycleTime=${cycleTime}&autoOff=${autoOff}&autoOffStart=${autoOffStart}&autoOffEnd=${autoOffEnd}`;
 	let returnData = await APIRequest('PUT', url);
 	
-	setTimeout(() => {
-		window.location.reload();
-	}, 400);
+	callback();
 
 }
 

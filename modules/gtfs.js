@@ -158,7 +158,6 @@ function getStationSchedules(stopIds, minimumTime, tripUpdatesArray, arrivalsArr
     // get the trip updates for each of the services of the station
     let station = stations.find(obj => obj.stopId.includes(stopIds[0]));
     let stationServices = getFeedsForStation(stopIds[0]);
-    console.log(stationServices);
 
     getTripUpdates(stationServices, tripUpdatesArray, (tripUpdatesArray) => {
         let now = Date.now();

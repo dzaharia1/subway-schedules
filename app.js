@@ -32,12 +32,13 @@ app.get('/sign/:signId', async (req, res) => {
   let minimumTime = signInfo[0].minimum_time;
   
   gtfs.getStationSchedules(stations, minimumTime, [], [], (schedule) => {
-    if (directionFilter) {
+    if (directionFilter && directionFilter != '') {
       schedule = schedule.filter(obj => obj.stopId.includes(directionFilter));
     }
     schedule = schedule.slice(0, signInfo[0].max_arrivals_to_show);
-    schedule.push({
+    schedule.unshift({
       rotating: signInfo[0].rotating,
+      numArrivals: signInfo[0].max_arrivals_to_show,
       shutOffSchedule: signInfo[0].shutoff_schedule,
       turnOnTime: signInfo[0].turnon_time,
       shutOffTime: signInfo[0].turnoff_time,
@@ -64,7 +65,7 @@ app.get('/web/:signId', async (req, res) => {
     }
     viewData.stations = gtfs.stations;
     viewData.routes = gtfs.routes;
-    if (directionFilter) {
+    if (directionFilter && directionFilter != '') {
       viewData.arrivals = schedule.filter(obj => obj.stopId.includes(directionFilter));
     } else {
       viewData.arrivals = schedule;
@@ -100,7 +101,6 @@ app.put('/signinfo/:signId', async (req, res) => {
 	let autoOff = req.query.autoOff;
 	let autoOffStart = req.query.autoOffStart;
 	let autoOffEnd = req.query.autoOffEnd;
-  console.log(req.query);
 
   res.json(await postgres.setSignConfig(
     signId,

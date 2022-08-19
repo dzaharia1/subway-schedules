@@ -1,0 +1,46 @@
+.power-dialog {
+    @extend %vertical-start;
+    position: absolute;
+    bottom: -50vh;
+    left: 0;
+    right: 0;
+
+    padding: 1rem $padding-mobile;
+    border-radius: 1rem 1rem 0 0;
+    background-color: $secondary-blue;
+    transition: bottom $transition;
+
+    &--active {
+        bottom: 0;
+    }
+
+    &__header {
+        @extend %horizontal-center;
+        width: 100%;
+        margin-bottom: 1rem;
+
+        img {
+            margin-right: 1rem;
+        }
+    }
+
+    button,
+    p {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+
+    &--off {
+        .power-dialog__confirm {
+            background-color: $orange-bdfm;
+            color: $background-blue;
+        }
+    }
+
+    &--on {
+        .power-dialog__confirm {
+            background-color: $blue-ace;
+            color: $primary-white;
+        }
+    }
+}

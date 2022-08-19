@@ -8,6 +8,9 @@ let searchSubmitButton;
 let checkboxExpanders;
 let optionsSubmit;
 let signInfo;
+let powerButton;
+let powerDialogConfirmButtons;
+let powerDialogCancelButtons;
 
 let readyFunction = function() {
 	activeStationsList = document.querySelector('.active-stations');
@@ -19,6 +22,11 @@ let readyFunction = function() {
 	tabButtons = document.querySelectorAll('.tabs>button');
 	checkboxExpanders = document.querySelectorAll('.checkbox-expander');
 	optionsSubmit = document.querySelector('.options__submit');
+	powerButton = document.querySelector('.header__power-button');
+	powerDialogConfirmButtons = document.querySelectorAll('.power-dialog__confirm');
+	powerDialogCancelButtons = document.querySelectorAll('.power-dialog__cancel');
+
+	console.log(powerDialogConfirmButtons);
 
 	signInfo = getSignInfo();
 
@@ -110,6 +118,40 @@ let readyFunction = function() {
 			}, 2500);
 		});
 	});
+
+	powerButton.addEventListener('click', () => {
+		let on = powerButton.getAttribute('sign-on') === 'true';
+		if (on) {
+			let dialog = document.querySelector('.power-dialog--off');
+			dialog.classList.add('power-dialog--active');
+		} else {
+			let dialog = document.querySelector('.power-dialog--on');
+			dialog.classList.add('power-dialog--active');
+		}
+	});
+
+	for (let button of powerDialogConfirmButtons) {
+		button.addEventListener('click', () => {
+			setDisplayPower(button.getAttribute('sign-on'));
+			button.parentNode.classList.remove('power-dialog--active');
+		});
+	}
+	
+	for (let button of powerDialogCancelButtons) {
+		button.addEventListener('click', () => {
+			let dialog = button.parentNode;
+			console.log(dialog);
+			dialog.classList.remove('power-dialog--active');
+		})
+	}
+}
+
+async function setDisplayPower(value) {
+	let signId = document.querySelector('.header__sign-name').getAttribute('sign-id');
+	let url = `signpower/${signId}?power=${value}`;
+	console.log(url);
+	let returnData = await APIRequest('PUT', url);
+	powerButton.setAttribute('sign-on', value);
 }
 
 function searchStations(searchTerm) {

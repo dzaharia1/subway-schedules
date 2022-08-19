@@ -52,5 +52,13 @@ module.exports = {
             WHERE sign_id='${signId}'
             RETURNING *
         `);
+    },
+    setSignPower: async (signId, powerMode) => {
+        return await runQuery(`
+            UPDATE signs
+            SET sign_on=${powerMode}
+            WHERE sign_id='${signId}'
+            RETURNING sign_on
+        `);
     }
 };

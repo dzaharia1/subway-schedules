@@ -118,6 +118,12 @@ app.put('/signinfo/:signId', async (req, res) => {
   }));
 });
 
+app.put('/signpower/:signid', async (req, res) => {
+  let signId = req.params.signid;
+  let powerMode = req.query.power;
+  res.json(await postgres.setSignPower(signId, powerMode))
+});
+
 var server = app.listen(app.get('port'), () => {
   app.address = app.get('host') + ':' + server.address().port;
   console.log('Listening at ' + app.address);

@@ -1,4 +1,6 @@
 <header class="header">
     <h1 class="header__sign-name" sign-id=<%= signInfo.sign_id %>>Sign <%= signInfo.sign_id.toUpperCase() %></h1>
-    <button class="icon-button header__power-button"></button>
+    <button class="header__power-button" sign-on="<%= signInfo.sign_on %>">
+        <div class="icon-button"></div>
+    </button>
 </header>

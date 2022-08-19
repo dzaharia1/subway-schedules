@@ -16,6 +16,7 @@
 @import 'partials/add-stations-mode';
 @import 'partials/active-stations';
 @import 'partials/options';
+@import 'partials/power-dialog';
 
 .hidden {
 	display: none;
@@ -26,6 +27,7 @@ body {
 	background-color: $background-blue;
 	color: $primary-white;
 	background-image: linear-gradient($secondary-blue, $background-blue);
+	overflow-y: hidden;
 }
 
 main {

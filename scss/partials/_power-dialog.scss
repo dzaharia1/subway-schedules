@@ -1,0 +1,49 @@
+.power-dialog {
+    @extend %vertical-start;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: translateY(50vh);
+    visibility: hidden;
+
+    padding: 1rem $padding-mobile;
+    border-radius: 1rem 1rem 0 0;
+    background-color: $secondary-blue;
+    transition: transform $transition;
+
+    &--active {
+        transform: translateY(0);
+        visibility: visible;
+    }
+
+    &__header {
+        @extend %horizontal-center;
+        width: 100%;
+        margin-bottom: 1rem;
+
+        img {
+            margin-right: 1rem;
+        }
+    }
+
+    button,
+    p {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+
+    &--off {
+        .power-dialog__confirm {
+            background-color: $orange-bdfm;
+            color: $background-blue;
+        }
+    }
+
+    &--on {
+        .power-dialog__confirm {
+            background-color: $blue-ace;
+            color: $primary-white;
+        }
+    }
+}

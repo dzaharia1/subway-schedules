@@ -10,6 +10,38 @@
     }
 
     &__power-button {
-        background-image: url('../img/power.svg');
+        width: 3rem;
+        height: 1rem;
+        overflow: visible;
+        border: 1px $tertiary-blue solid;
+        border-radius: .6rem;
+        background-color: $background-blue;
+        
+        .icon-button {
+            position: absolute;
+            width: 2rem;
+            height: 2rem;
+            background-image: url('../img/power.svg');
+            transition: transform $transition,
+                        background-color $transition,
+                        box-shadow $transition;
+                        
+        }
+                    
+        &[sign-on="true"] {
+            .icon-button {
+                background-color: $blue-ace;
+                transform: translateX(.6rem);
+                box-shadow: 0px 0px 10px 0px transparentize($blue-ace, 1);
+            }
+        }
+        
+        &[sign-on="false"] {
+            .icon-button {
+                background-color: $background-blue;
+                transform: translateX((-.6rem));
+                box-shadow: 0px 0px 10px 0px transparentize($background-blue, .5);
+            }
+        }
     }
 }

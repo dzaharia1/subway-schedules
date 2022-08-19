@@ -48,7 +48,7 @@ module.exports = {
     setSignConfig: async (signId, signConfig) => {
         return await runQuery(`
             UPDATE signs
-            SET direction='${signConfig.signDirection}', rotating='${signConfig.signRotation}', max_arrivals_to_show='${signConfig.numArrivals}', rotation_time='${signConfig.cycleTime}', shutoff_schedule='${signConfig.autoOff}'
+            SET minimum_time='${signConfig.minTime}', warn_time='${signConfig.warnTime}', direction='${signConfig.signDirection}', rotating='${signConfig.signRotation}', max_arrivals_to_show='${signConfig.numArrivals}', rotation_time='${signConfig.cycleTime}', shutoff_schedule='${signConfig.autoOff}'
             WHERE sign_id='${signId}'
             RETURNING *
         `);

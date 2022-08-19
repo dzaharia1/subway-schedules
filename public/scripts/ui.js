@@ -206,6 +206,8 @@ async function setSignInfo(callback) {
 	if (document.querySelector('[name="show-direction"]').checked) {
 		signDirection = document.querySelector('[name="direction"]:checked').value;
 	}
+	let minArrivalTime = document.querySelector('#minutes-until').value;
+	let warnTime = document.querySelector('#warn-time').value;
 	let signRotation = document.querySelector('[name="rotation"]').checked;
 	let numArrivals = document.querySelector('#num-arrivals').value;
 	let cycleTime = document.querySelector('#cycle-time').value;
@@ -214,7 +216,7 @@ async function setSignInfo(callback) {
 	let autoOffEnd = document.querySelector('#auto-off-end').value;
 
 	let signId = document.querySelector('.header__sign-name').getAttribute('sign-id');
-	let url = `signinfo/${signId}?signDirection=${signDirection}&signRotation=${signRotation}&numArrivals=${numArrivals}&cycleTime=${cycleTime}&autoOff=${autoOff}&autoOffStart=${autoOffStart}&autoOffEnd=${autoOffEnd}`;
+	let url = `signinfo/${signId}?minArrivalTime=${minArrivalTime}&warnTime=${warnTime}&signDirection=${signDirection}&signRotation=${signRotation}&numArrivals=${numArrivals}&cycleTime=${cycleTime}&autoOff=${autoOff}&autoOffStart=${autoOffStart}&autoOffEnd=${autoOffEnd}`;
 	let returnData = await APIRequest('PUT', url);
 	
 	callback();

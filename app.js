@@ -94,6 +94,8 @@ app.get('/signinfo/:signId', async (req, res) => {
 
 app.put('/signinfo/:signId', async (req, res) => {
   let signId = req.params.signId;
+  let minTime = req.query.minArrivalTime;
+  let warnTime = req.query.warnTime;
   let signDirection = req.query.signDirection;
   let signRotation = req.query.signRotation;
 	let numArrivals = req.query.numArrivals;
@@ -101,10 +103,13 @@ app.put('/signinfo/:signId', async (req, res) => {
 	let autoOff = req.query.autoOff;
 	let autoOffStart = req.query.autoOffStart;
 	let autoOffEnd = req.query.autoOffEnd;
+  console.log(req.query);
 
   res.json(await postgres.setSignConfig(
     signId,
     {
+      minTime: minTime,
+      warnTime: warnTime,
       signDirection: signDirection.toUpperCase(),
       signRotation: signRotation,
       numArrivals: numArrivals,

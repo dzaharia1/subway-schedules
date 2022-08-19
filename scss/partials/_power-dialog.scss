@@ -1,17 +1,20 @@
 .power-dialog {
     @extend %vertical-start;
     position: absolute;
-    bottom: -50vh;
+    bottom: 0;
     left: 0;
     right: 0;
+    transform: translateY(50vh);
+    visibility: hidden;
 
     padding: 1rem $padding-mobile;
     border-radius: 1rem 1rem 0 0;
     background-color: $secondary-blue;
-    transition: bottom $transition;
+    transition: transform $transition;
 
     &--active {
-        bottom: 0;
+        transform: translateY(0);
+        visibility: visible;
     }
 
     &__header {

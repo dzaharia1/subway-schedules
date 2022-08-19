@@ -27,6 +27,7 @@ body {
 	background-color: $background-blue;
 	color: $primary-white;
 	background-image: linear-gradient($secondary-blue, $background-blue);
+	overflow-y: hidden;
 }
 
 main {

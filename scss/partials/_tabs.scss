@@ -7,6 +7,11 @@
     overflow-y: hidden;
     transition: max-height $transition;
 
+    @media screen and (min-width: 845px) {
+        max-height: 0;
+        transition: max-height $transition;
+    }
+
     &__item {
         flex: 1;
         padding: .25rem 1rem .875rem;

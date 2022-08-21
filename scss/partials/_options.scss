@@ -4,6 +4,11 @@
 
     h2 {
         margin-bottom: 1rem;
+        display: none;
+
+        @media screen and (min-width: $breakpoint) {
+            display: block;
+        }
     }
 
     &__submit {

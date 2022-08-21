@@ -24,6 +24,7 @@
 }
 
 body {
+	@extend %vertical-center;
 	@extend %helvetica;
 	background-color: $background-blue;
 	color: $primary-white;
@@ -32,9 +33,13 @@ body {
 }
 
 main {
-	@extend %vertical-start;
+	@extend %vertical-center;
 	width: 100vw;
 	height: 100vh;
+
+	@media screen and (min-width: $breakpoint) {
+		max-width: $site-max-width;
+	}
 }
 
 .submit {

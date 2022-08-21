@@ -14,11 +14,42 @@
         overflow-y: scroll;
 
         &--left {
-            transform: translateX(0);
+            transform: translateX(50vw);
         }
 
         &--right {
-            transform: translateX(-100vw);
+            transform: translateX(-50vw);
+        }
+
+        @media screen and (min-width: $breakpoint) {
+            width: 100vw;
+            max-width: $site-max-width;
+            padding: 0 $padding-mobile;
+
+            .tab-panel {
+                &:first-child {
+                    padding: 0 2rem 0 0;
+                    margin-right: 2rem;
+                    border-right: 1px $tertiary-blue solid;
+                }
+                &:last-child {
+                    padding: 0;
+                }
+            }
+
+            &.tab-panel__frame--right,
+            &.tab-panel__frame--left {
+                transform: translateX(0vw);
+            }
+
+            // .tab-panel {
+            //     padding: 0;
+            //     margin-right: 2rem;
+
+            //     &:last-child {
+            //         margin: 0;
+            //     }
+            // }
         }
     }
 

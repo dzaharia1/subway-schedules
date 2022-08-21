@@ -25,6 +25,7 @@
 
     button {
         width: 100%;
+        background-color: transparentize($background-blue, .75);
     }
     .spacer {
         flex: 1;

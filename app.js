@@ -19,9 +19,7 @@ app.host = app.set('host', process.env.HOST || localhost);
 app.port = app.set('port', process.env.PORT || localport);
 
 app.get('/', (req, res) => {
-  gtfs.getStationSchedules(trackingStations, minimumTime, [], [], (schedule) => {
-    res.json(schedule.slice(0, 10));
-  });
+  res.render('sign-selector', { signInfo: {} });
 });
 
 app.get('/sign/:signId', async (req, res) => {
@@ -71,7 +69,7 @@ app.get('/web/:signId', async (req, res) => {
       viewData.arrivals = schedule;
     }
     viewData.signInfo = signInfo[0];
-    res.render('index', viewData);
+    res.render('sign', viewData);
   });
 });
 
@@ -88,6 +86,15 @@ app.put('/setstops/:signId', async (req, res) => {
 
 app.get('/signinfo/:signId', async (req, res) => {
   let signInfo = await postgres.getSignConfig(req.params.signId);
+  console.log(signInfo)
+  if (signInfo.length === 0) {
+    console.log(`Didn't find sign ${req.params.signId}`);
+    res.json({
+      error: `There is no sign with code ${req.params.signId}.`
+    });
+
+    return;
+  }
   res.json(signInfo[0]);
 });
 

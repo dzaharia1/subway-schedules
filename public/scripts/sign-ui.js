@@ -12,7 +12,7 @@ let powerButton;
 let powerDialogConfirmButtons;
 let powerDialogCancelButtons;
 
-let readyFunction = function() {
+let readyFunction = () => {
 	activeStationsList = document.querySelector('.active-stations');
 	activeStations = activeStationsList.querySelectorAll('.stations-list__item');
 	searchResultsList = document.querySelector('.search-results>.stations-list');
@@ -267,7 +267,6 @@ async function setSignInfo(callback) {
 
 if (document.readyState != 'loading') {
 	readyFunction();
-}
-else {
-	document.addEventListener('DOMContentLoaded', readyFunction)
+} else {
+	document.addEventListener('DOMContentLoaded', readyFunction);
 }

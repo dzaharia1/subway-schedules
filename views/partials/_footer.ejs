@@ -1,6 +1,8 @@
     </body>
     <script>
-        let signId = "<%= signInfo.signId %>";
+        <% if (signInfo.signId) { %>
+            let signId = "<%= signInfo.signId %>";
+        <% } %>
         async function APIRequest(verb, route) {
             let url = window.location.href;
             url = `${window.location.href.substr(0, 7)}${url.split('/', 3)[2]}/`;

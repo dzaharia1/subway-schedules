@@ -1,4 +1,5 @@
 .input {
+    @extend %vertical-start;
     width: 100%;
     margin-bottom: 2rem;
 
@@ -15,6 +16,10 @@
         font-size: 1.2rem;
         font-weight: 700;
         color: $primary-white;
+
+        &:focus {
+            outline: none;
+        }
     }
 
     &__unit {
@@ -27,13 +32,47 @@
         right: 1.25rem;
     }
 
-    label {
-        margin-bottom: .75rem;
+    label,
+    &__error {
+        width: 100%;
+        padding: 0 calc($padding-mobile / 2);
     }
 
     .warning {
         color: $orange-bdfm;
         font-weight: 700;
+    }
+
+    &__error {
+        margin-top: .25rem;
+    }
+
+    &--error {
+        input[type="text"],
+        input[type="number"],
+        input[type="time"] {
+            border: 3px $orange-bdfm solid;
+            padding: calc(1rem - 2px) calc(1.25rem - 2px);
+        }
+
+        .error {
+            color: $orange-bdfm;
+            font-weight: 700;
+        }
+    }
+    
+    &--valid {
+        input[type="text"],
+        input[type="number"],
+        input[type="time"] {
+            border: 3px $green-456 solid;
+            padding: calc(1rem - 2px) calc(1.25rem - 2px);
+        }
+
+        .error {
+            color: $green-456;
+            font-weight: 700;
+        }
     }
 }
 

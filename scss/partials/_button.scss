@@ -1,4 +1,5 @@
-button {
+button,
+.button {
     @extend %horizontal-center;
     justify-content: center;
     padding: .5rem 1rem;
@@ -7,11 +8,27 @@ button {
     font-size: 1.25rem;
     border: 1px $tertiary-blue solid;
     border-radius: 4px;
+    transition: background-color $transition;
     
     img {
         width: 28px;
         height: 28px;
         margin-right: 1rem;
+    }
+
+    &--working {
+        background-color: $blue-ace;
+        border-color: $blue-ace;
+    }
+
+    &--valid {
+        background-color: $green-g;
+        border-color: $green-g;
+    }
+
+    &--error {
+        background-color: $red-123;
+        border-color: $red-123;
     }
 }
 

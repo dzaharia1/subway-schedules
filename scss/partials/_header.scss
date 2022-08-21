@@ -5,6 +5,11 @@
     opacity: 1;
     transition: margin $transition;
 
+    &__back-button {
+        background-image: url('../img/backbutton.svg');
+        margin-right: .75rem;
+    }
+
     &__sign-name {
         flex: 1;
     }

@@ -36,6 +36,7 @@ main {
 	@extend %vertical-center;
 	width: 100vw;
 	height: 100vh;
+	overflow-x: hidden;
 
 	@media screen and (min-width: $breakpoint) {
 		max-width: $site-max-width;

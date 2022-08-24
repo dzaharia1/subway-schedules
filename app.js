@@ -5,11 +5,13 @@ const ejs = require('ejs');
 const { raw } = require('express');
 const gtfs = require('./modules/gtfs');
 const postgres = require('./modules/pg');
+const cors = require('cors');
 
 let app = express();
 let localport = '3333';
 let localhost = 'http://localhost';
 
+app.use(cors());
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.engine('ejs', cons.ejs);

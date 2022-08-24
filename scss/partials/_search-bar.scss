@@ -2,7 +2,7 @@
     @extend %horizontal-center;
     @extend .button;
     width: 100%;
-    padding: .5rem .75rem;
+    padding: .625rem .75rem;
 
     &__save {
         width: 2rem !important;
@@ -12,7 +12,7 @@
     }
 
     input {
-        font-size: 1.5rem;
+        font-size: 1.25rem;
         font-weight: 700;
         color: $primary-white;
         width: calc(100% - 3rem);

@@ -1,6 +1,12 @@
 .options {
     flex: 1;
     overflow-y: scroll;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
 
     h2 {
         margin-bottom: 1rem;

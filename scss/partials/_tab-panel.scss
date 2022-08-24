@@ -12,6 +12,12 @@
         flex: 1;
         transition: transform $transition;
         overflow-y: scroll;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
 
         &--left {
             transform: translateX(50vw);

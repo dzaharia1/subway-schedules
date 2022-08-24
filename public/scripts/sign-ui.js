@@ -9,8 +9,7 @@ let checkboxExpanders;
 let optionsSubmit;
 let signInfo;
 let powerButton;
-let powerDialogConfirmButtons;
-let powerDialogCancelButtons;
+let toast;
 
 let readyFunction = () => {
 	activeStationsList = document.querySelector('.active-stations');
@@ -23,10 +22,7 @@ let readyFunction = () => {
 	checkboxExpanders = document.querySelectorAll('.checkbox-expander');
 	optionsSubmit = document.querySelector('.options__submit');
 	powerButton = document.querySelector('.header__power-button');
-	powerDialogConfirmButtons = document.querySelectorAll('.power-dialog__confirm');
-	powerDialogCancelButtons = document.querySelectorAll('.power-dialog__cancel');
-
-	console.log(powerDialogConfirmButtons);
+	toast = document.querySelector('.toast');
 
 	signInfo = getSignInfo();
 
@@ -120,30 +116,9 @@ let readyFunction = () => {
 	});
 
 	powerButton.addEventListener('click', () => {
-		let on = powerButton.getAttribute('sign-on') === 'true';
-		if (on) {
-			let dialog = document.querySelector('.power-dialog--off');
-			dialog.classList.add('power-dialog--active');
-		} else {
-			let dialog = document.querySelector('.power-dialog--on');
-			dialog.classList.add('power-dialog--active');
-		}
+		let on = powerButton.getAttribute('sign-on') !== 'true';
+		setDisplayPower(on);
 	});
-
-	for (let button of powerDialogConfirmButtons) {
-		button.addEventListener('click', () => {
-			setDisplayPower(button.getAttribute('sign-on'));
-			button.parentNode.classList.remove('power-dialog--active');
-		});
-	}
-	
-	for (let button of powerDialogCancelButtons) {
-		button.addEventListener('click', () => {
-			let dialog = button.parentNode;
-			console.log(dialog);
-			dialog.classList.remove('power-dialog--active');
-		})
-	}
 }
 
 async function setDisplayPower(value) {
@@ -151,7 +126,14 @@ async function setDisplayPower(value) {
 	let url = `signpower/${signId}?power=${value}`;
 	console.log(url);
 	let returnData = await APIRequest('PUT', url);
-	powerButton.setAttribute('sign-on', value);
+	if (returnData[0].sign_on === value) {
+		powerButton.setAttribute('sign-on', value);
+		if (value) {
+			toastMessage(`Sign will turn on in a few seconds`);
+		} else {
+			toastMessage('Sign will turn off in a few seconds');
+		}
+	}
 }
 
 function searchStations(searchTerm) {
@@ -235,6 +217,19 @@ function checkMode() {
 
 function clearSearchResults() {
 	searchResultsList.innerHTML = '';
+}
+
+function toastMessage(message) {
+	let paragraph = toast.querySelector('p');
+	paragraph.innerText = message;
+	toast.classList.add('toast--active');
+	setTimeout(() => {
+		toast.classList.add('toast--deactivated');
+		setTimeout(() => {
+			toast.classList.remove('toast--deactivated');
+			toast.classList.remove('toast--active');
+		}, 1000);
+	}, 3000);
 }
 
 async function getSignInfo() {

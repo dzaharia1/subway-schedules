@@ -86,7 +86,6 @@ app.put('/setstops/:signId', async (req, res) => {
 
 app.get('/signinfo/:signId', async (req, res) => {
   let signInfo = await postgres.getSignConfig(req.params.signId);
-  console.log(signInfo)
   if (signInfo.length === 0) {
     console.log(`Didn't find sign ${req.params.signId}`);
     res.json({

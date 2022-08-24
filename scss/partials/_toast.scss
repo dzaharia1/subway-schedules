@@ -1,0 +1,21 @@
+.toast {
+    position: absolute;
+    bottom: 8rem;
+    width: 80%;
+    padding: 1rem 1.25rem;
+    background-color: $background-blue;
+    border: 1px $tertiary-blue solid;
+    border-radius: .25rem;
+    transition: transform 0s linear;
+
+    transform: translateX(-100vw);
+    
+    &--active {
+        transition: transform $transition;
+        transform: translateX(0);
+    }
+
+    &--deactivated {
+        transform: translateX(100vw);
+    }
+}

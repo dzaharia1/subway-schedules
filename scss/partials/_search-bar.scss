@@ -1,12 +1,14 @@
 .search-bar {
     @extend %horizontal-center;
+    @extend .button;
     width: 100%;
-    padding: .25rem 0 .25rem;
+    padding: .5rem .75rem;
 
     &__save {
-        width: 3rem !important;
-        height: 3rem;
+        width: 2rem !important;
+        height: 2rem;
         background-image: url('../img/search.svg');
+        margin: -.25rem 0;
     }
 
     input {
@@ -20,7 +22,8 @@
         }
 
         &::placeholder {
-            color: lighten($tertiary-blue, 30%);
+            // color: lighten($tertiary-blue, 30%);
+            color: $primary-white;
         }
     }
 }

@@ -73,7 +73,7 @@ app.get('/web/:signId', async (req, res) => {
   });
 });
 
-app.put('/setstops/:signId', async (req, res) => {
+app.post('/setstops/:signId', async (req, res) => {
   let signId = req.params.signId;
   let stops = req.query.stops.split(',');
   let stopsString = "";
@@ -97,7 +97,7 @@ app.get('/signinfo/:signId', async (req, res) => {
   res.json(signInfo[0]);
 });
 
-app.put('/signinfo/:signId', async (req, res) => {
+app.post('/signinfo/:signId', async (req, res) => {
   let signId = req.params.signId;
   let minTime = req.query.minArrivalTime;
   let warnTime = req.query.warnTime;
@@ -124,7 +124,7 @@ app.put('/signinfo/:signId', async (req, res) => {
   }));
 });
 
-app.put('/signpower/:signid', async (req, res) => {
+app.post('/signpower/:signid', async (req, res) => {
   let signId = req.params.signid;
   let powerMode = req.query.power;
   res.json(await postgres.setSignPower(signId, powerMode))

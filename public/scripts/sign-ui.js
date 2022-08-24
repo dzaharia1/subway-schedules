@@ -62,7 +62,7 @@ let readyFunction = () => {
 		}
 		url = url.substr(0, url.length - 1);
 
-		let returnData = await APIRequest('PUT', url);
+		let returnData = await APIRequest('POST', url);
 		setTimeout(() => {
 			window.location.reload();
 		}, 400);
@@ -125,7 +125,7 @@ async function setDisplayPower(value) {
 	let signId = document.querySelector('.header__sign-name').getAttribute('sign-id');
 	let url = `signpower/${signId}?power=${value}`;
 	console.log(url);
-	let returnData = await APIRequest('PUT', url);
+	let returnData = await APIRequest('POST', url);
 	if (returnData[0].sign_on === value) {
 		powerButton.setAttribute('sign-on', value);
 		if (value) {
@@ -254,7 +254,7 @@ async function setSignInfo(callback) {
 
 	let signId = document.querySelector('.header__sign-name').getAttribute('sign-id');
 	let url = `signinfo/${signId}?minArrivalTime=${minArrivalTime}&warnTime=${warnTime}&signDirection=${signDirection}&signRotation=${signRotation}&numArrivals=${numArrivals}&cycleTime=${cycleTime}&autoOff=${autoOff}&autoOffStart=${autoOffStart}&autoOffEnd=${autoOffEnd}`;
-	let returnData = await APIRequest('PUT', url);
+	let returnData = await APIRequest('POST', url);
 	
 	callback();
 

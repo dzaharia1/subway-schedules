@@ -164,6 +164,10 @@ app.get('/signpower/:signId', async (req, res) => {
   res.json(signInfo[0].sign_on);
 });
 
+app.get('/stations', (req, res) => {
+  res.json(gtfs.stations);
+});
+
 var server = app.listen(app.get('port'), () => {
   app.address = app.get('host') + ':' + server.address().port;
   console.log('Listening at ' + app.address);

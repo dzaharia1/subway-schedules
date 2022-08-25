@@ -157,6 +157,13 @@ app.post('/signpower/:signid', async (req, res) => {
   res.json(await postgres.setSignPower(signId, powerMode))
 });
 
+app.get('/signpower/:signId', async (req, res) => {
+  let signInfo = await postgres.getSignConfig(req.params.signId);
+  console.log(signInfo);
+
+  res.json(signInfo[0].sign_on);
+});
+
 var server = app.listen(app.get('port'), () => {
   app.address = app.get('host') + ':' + server.address().port;
   console.log('Listening at ' + app.address);

@@ -6,6 +6,7 @@ const { raw } = require('express');
 const gtfs = require('./modules/gtfs');
 const postgres = require('./modules/pg');
 const cors = require('cors');
+const { post } = require('request');
 
 let app = express();
 let localport = '3333';
@@ -98,6 +99,30 @@ app.get('/signinfo/:signId', async (req, res) => {
   }
   res.json(signInfo[0]);
 });
+
+app.get('/signstations/:signId', async (req, res) => {
+  let signInfo = await postgres.getSignConfig(req.params.signId);
+  if (signInfo.length === 0) {
+    console.log(`Didn't find sign ${req.params.signId}`);
+    res.json({
+      error: `There is no sign with code ${req.params.signId}.`
+    });
+
+    return;
+  }
+
+  let returnData = gtfs.stations.filter((obj) => {
+    for (let stopId of signInfo[0].stations) {
+      if (obj.stopId === stopId) {
+        return obj;
+      }
+    }
+  });
+
+  console.log(returnData);
+
+  res.json(returnData);
+})
 
 app.post('/signinfo/:signId', async (req, res) => {
   let signId = req.params.signId;

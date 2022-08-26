@@ -7,6 +7,7 @@ const gtfs = require('./modules/gtfs');
 const postgres = require('./modules/pg');
 const cors = require('cors');
 const { post } = require('request');
+const pg = require('./modules/pg');
 
 let app = express();
 let localport = '3333';
@@ -168,6 +169,10 @@ app.get('/signpower/:signId', async (req, res) => {
 
 app.get('/stations', (req, res) => {
   res.json(gtfs.stations);
+});
+
+app.get('/signids', async (req, res) => {
+  res.json(await pg.getSignIds());
 });
 
 var server = app.listen(app.get('port'), () => {

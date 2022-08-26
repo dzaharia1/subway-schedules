@@ -133,8 +133,8 @@ app.post('/signinfo/:signId', async (req, res) => {
 	let numArrivals = req.query.numArrivals;
 	let cycleTime = req.query.cycleTime;
 	let autoOff = req.query.autoOff;
-	let autoOffStart = req.query.autoOffStart + ':00';
-	let autoOffEnd = req.query.autoOffEnd + ':00';
+	let autoOffStart = req.query.autoOffStart;
+	let autoOffEnd = req.query.autoOffEnd;
 
   let newConfig = {
       minTime: minTime,

@@ -133,12 +133,10 @@ app.post('/signinfo/:signId', async (req, res) => {
 	let numArrivals = req.query.numArrivals;
 	let cycleTime = req.query.cycleTime;
 	let autoOff = req.query.autoOff;
-	let autoOffStart = req.query.autoOffStart;
-	let autoOffEnd = req.query.autoOffEnd;
+	let autoOffStart = req.query.autoOffStart + ':00';
+	let autoOffEnd = req.query.autoOffEnd + ':00';
 
-  res.json(await postgres.setSignConfig(
-    signId,
-    {
+  let newConfig = {
       minTime: minTime,
       warnTime: warnTime,
       signDirection: signDirection.toUpperCase(),
@@ -146,9 +144,13 @@ app.post('/signinfo/:signId', async (req, res) => {
       numArrivals: numArrivals,
       cycleTime: cycleTime,
       autoOff: autoOff,
-      autoOffStart: autoOffStart + ':00',
-      autoOffEnd: autoOffEnd + ':00'
-  }));
+      autoOffStart: autoOffStart,
+      autoOffEnd: autoOffEnd
+  };
+  console.log(newConfig);
+
+  res.json(await postgres.setSignConfig(
+    signId, newConfig));
 });
 
 app.post('/signpower/:signid', async (req, res) => {

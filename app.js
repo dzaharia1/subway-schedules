@@ -146,8 +146,8 @@ app.post('/signinfo/:signId', async (req, res) => {
       numArrivals: numArrivals,
       cycleTime: cycleTime,
       autoOff: autoOff,
-      autoOffStart: autoOffStart,
-      autoOffEnd: autoOffEnd
+      autoOffStart: autoOffStart + ':00',
+      autoOffEnd: autoOffEnd + ':00'
   }));
 });
 

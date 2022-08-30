@@ -29,51 +29,27 @@ app.get('/', (req, res) => {
 app.get('/sign/:signId', async (req, res) => {
   let signId = req.params.signId;
   let signInfo = await postgres.getSignConfig(signId);
-  let stations = signInfo[0].stations;
-  let directionFilter = signInfo[0].direction;
-  let minimumTime = signInfo[0].minimum_time;
+  signInfo = checkAutoSchedule(signInfo[0]);
+  let stations = signInfo.stations;
+  let directionFilter = signInfo.direction;
+  let minimumTime = signInfo.minimum_time;
   
   gtfs.getStationSchedules(stations, minimumTime, [], [], (schedule) => {
     if (directionFilter && directionFilter != '') {
       schedule = schedule.filter(obj => obj.stopId.includes(directionFilter));
     }
-    schedule = schedule.slice(0, signInfo[0].max_arrivals_to_show);
+    schedule = schedule.slice(0, signInfo.max_arrivals_to_show);
     schedule.unshift({
-      rotating: signInfo[0].rotating,
-      numArrivals: signInfo[0].max_arrivals_to_show,
-      shutOffSchedule: signInfo[0].shutoff_schedule,
-      turnOnTime: signInfo[0].turnon_time,
-      shutOffTime: signInfo[0].turnoff_time,
-      warnTime: signInfo[0].warn_time,
-      signOn: signInfo[0].sign_on,
-      rotationTime: signInfo[0].rotation_time
+      rotating: signInfo.rotating,
+      numArrivals: signInfo.max_arrivals_to_show,
+      shutOffSchedule: signInfo.shutoff_schedule,
+      turnOnTime: signInfo.turnon_time,
+      shutOffTime: signInfo.turnoff_time,
+      warnTime: signInfo.warn_time,
+      signOn: signInfo.sign_on,
+      rotationTime: signInfo.rotation_time
     });
     res.json(schedule);
-  });
-});
-
-app.get('/web/:signId', async (req, res) => {
-  let signId = req.params.signId;
-  let signInfo = await postgres.getSignConfig(signId);
-  let stations = signInfo[0].stations;
-  let minimumTime = signInfo[0]['minimum_time'];
-  let directionFilter = signInfo[0].direction;
-
-  gtfs.getStationSchedules(stations, minimumTime, [], [], (schedule) => {
-    let viewData = {};
-    viewData.trackedStations = [];
-    for (let stopId of stations) {
-      viewData.trackedStations.push(gtfs.stations.find(obj => obj.stopId.includes(stopId)));
-    }
-    viewData.stations = gtfs.stations;
-    viewData.routes = gtfs.routes;
-    if (directionFilter && directionFilter != '') {
-      viewData.arrivals = schedule.filter(obj => obj.stopId.includes(directionFilter));
-    } else {
-      viewData.arrivals = schedule;
-    }
-    viewData.signInfo = signInfo[0];
-    res.render('sign', viewData);
   });
 });
 
@@ -90,15 +66,19 @@ app.post('/setstops/:signId', async (req, res) => {
 
 app.get('/signinfo/:signId', async (req, res) => {
   let signInfo = await postgres.getSignConfig(req.params.signId);
+  
   if (signInfo.length === 0) {
     console.log(`Didn't find sign ${req.params.signId}`);
     res.json({
       error: `There is no sign with code ${req.params.signId}.`
     });
-
+    
     return;
+  } else {
+    signInfo = checkAutoSchedule(signInfo[0]);
+    res.json(signInfo);
   }
-  res.json(signInfo[0]);
+
 });
 
 app.get('/signstations/:signId', async (req, res) => {
@@ -179,3 +159,29 @@ var server = app.listen(app.get('port'), () => {
   app.address = app.get('host') + ':' + server.address().port;
   console.log('Listening at ' + app.address);
 });
+
+function checkAutoSchedule(signInfo) {
+  if (signInfo["shutoff_schedule"] && signInfo['sign_on']) {
+    const autoOffTime = signInfo['turnoff_time'];
+    const autoOnTime = signInfo['turnon_time'];
+    const autoOffHour = parseInt(autoOffTime.substr(0, 2), 10);
+    const autoOffMinute = parseInt(autoOffTime.substr(3, 2), 10);
+    const autoOnHour = parseInt(autoOnTime.substr(0, 2), 10);
+    const autoOnMinute = parseInt(autoOnTime.substr(3, 2), 10);
+
+    const dateString = new Date().toLocaleString("en-us", { timeZone: 'America/New_York'});
+    const currentTime = new Date(dateString);
+    const currentHour = currentTime.getHours();
+    const currentMinute = currentTime.getMinutes();
+
+    if (currentHour >= autoOnHour && currentMinute >= autoOnMinute) {
+      signInfo['sign_on'] = true;
+    }
+    
+    if (currentHour >= autoOffHour && currentMinute >= autoOffMinute) {
+      signInfo['sign_on'] = false;
+    }
+  }
+
+  return signInfo;
+}

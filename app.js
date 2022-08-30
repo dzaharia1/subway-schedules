@@ -164,29 +164,15 @@ function checkAutoSchedule(signInfo) {
   if (signInfo["shutoff_schedule"] && signInfo['sign_on']) {
     const autoOffTime = signInfo['turnoff_time'];
     const autoOnTime = signInfo['turnon_time'];
-    const turnoffHour = parseInt(autoOffTime.substr(0, 2), 10);
-    const turnoffMinute = parseInt(autoOffTime.substr(3, 2), 10);
-    const turnonHour = parseInt(autoOnTime.substr(0, 2), 10);
-    const turnonMinute = parseInt(autoOnTime.substr(3, 2), 10);
+    const turnOnTime = parseInt(autoOnTime.substr(0, 2), 10) * 60 + parseInt(autoOnTime.substr(3, 2), 10);
+    const turnOffTime = parseInt(autoOffTime.substr(0, 2), 10) * 60 + parseInt(autoOffTime.substr(3, 2), 10);
 
     const dateString = new Date().toLocaleString("en-us", { timeZone: 'America/New_York'});
-    const currentTime = new Date(dateString);
-    const currentHour = currentTime.getHours();
-    const currentMinute = currentTime.getMinutes();
+    const currentTimeObject = new Date(dateString);
+    const currentTime = currentTimeObject.getHours() * 60 + currentTimeObject.getMinutes();
 
-    console.log(`~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`)
-    console.log(`currently ${currentHour}:${currentMinute}`);
-    console.log(`turn on at ${turnonHour}:${turnonMinute}`);
-    console.log(`turn off at ${turnoffHour}:${turnoffMinute}`);
-
-    if (currentHour <= turnonHour && currentMinute < turnonMinute) {
+    if (currentTime < turnOnTime || currentTime >= turnOffTime) {
       signInfo['sign_on'] = false;
-      console.log('before turnon hour');
-    }
-
-    if (currentHour >= turnoffHour && currentMinute >= turnoffMinute) {
-      signInfo['sign_on'] = false;
-      console.log('past turnoff hour');
     }
   }
 

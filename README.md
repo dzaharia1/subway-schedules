@@ -1,5 +1,5 @@
 # The Subway Arrivals Sign API
-The subway arrivals sign is a CircuitPython powered LED sign which displays the upcoming train arrivals at the subway stations of your choosing! This repository contains the code for the API backend of the sign. The API pulls serialized data from the [MTA Realtime Data Feeds](https://api.mta.info/#/landing), and repackages it into a far-simplified, JSON payload that can be used by the [sign itself](https://github.com/dzaharia1/subway-sign-python).
+The subway arrivals sign is a CircuitPython-powered LED sign which displays the upcoming train arrivals at the subway stations of your choosing! This repository contains the code for the API backend of the sign. The API pulls serialized data from the [MTA Realtime Data Feeds](https://api.mta.info/#/landing), and repackages it into a far-simplified, JSON payload that can be used by the [sign itself](https://github.com/dzaharia1/subway-sign-python).
 
 ## Project overview
 The subway arrivals sign needs three overall components in place to get up and running:
@@ -101,6 +101,7 @@ CREATE TABLE signs (
 ```
 Now click on the refresh button on the top right of the Postico window, and click on "signs" under the Tables tab on the left. On the bottom of the screen, click on "content." You should see an empty database, with columns for the sign ID, stations, and all of the sign's settings.
 
+### Add your first sign to the database
 Back in the SQL Query editor, paste the following query to initialize your first sign. Replace `<SIGN ID>` with any four-letter ID for your sign:
 ```SQL
 INSERT INTO "public"."signs"("sign_id","stations","direction","minimum_time","rotating","max_arrivals_to_show","shutoff_schedule","turnon_time","turnoff_time","warn_time","sign_on","rotation_time")
@@ -150,4 +151,4 @@ Ok so we got the API deployed, and a database created. What about the live subwa
 ]
 ```
 
-Voila! We have a running API! Next, head to the Subway Sign App repo to deploy the application which you will use to set up and manage your sign.
+Voila! We have a running API! Next, head to the [Subway Sign App](https://github.com/dzaharia1/subway-sign-app) repo to deploy the application which you will use to set up and manage your sign.

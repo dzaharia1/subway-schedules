@@ -7,7 +7,7 @@ The subway arrivals sign needs three overall components in place to get up and r
 2. [The subway arrivals web app](https://github.com/dzaharia1/subway-sign-app), which is the front-end that you will use to configure which stations your sign tracks, and other settings, like when it should turn off at night and turn on in the morning
 3. [The subway sign itself](https://github.com/dzaharia1/subway-sign-python), which runs on a wifi-enabled CircuitPython board custom-made to drive the an LED matrix.
 
-This tutorial will cover the setup of the API, which I recommend getting up and running first. Visit the web app and sign repositories (in that order) for instructions on setting those components up as well.
+This tutorial will cover the setup of the API, which I recommend getting up and running first. Visit the web app and sign repositories (in that order) for instructions on setting those components up as well, AFTER you have completed this tutorial.
 
 ## A bit more about this API
 This Node.js-based API has two jobs: it stores the settings information for each sign using a Postgres database and then uses that settings information to serve up fresh, sign-specific information to the sign on request. You will give each sign you make a unique four-letter code, which the API will use to interpret the sign's settings and drive the sign's behavior.

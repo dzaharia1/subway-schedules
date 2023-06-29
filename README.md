@@ -1,5 +1,5 @@
 # The Subway Arrivals Sign API
-The subway arrivals sign is a CircuitPython-powered LED sign which displays the upcoming train arrivals at the subway stations of your choosing! This repository contains the code for the API backend of the sign. The API pulls serialized data from the [MTA Realtime Data Feeds](https://api.mta.info/#/landing), and repackages it into a far-simplified, JSON payload that can be used by the [sign itself](https://github.com/dzaharia1/subway-sign-python).
+The subway arrivals sign is a CircuitPython-powered LED sign which displays the upcoming train arrivals at the subway stations of your choosing! This repository contains the code for the API backend of the sign. The API pulls serialized data from the [MTA Realtime Data Feeds](https://api.mta.info/#/landing), and repackages it into a far-simplified JSON payload that can be used by the [sign itself](https://github.com/dzaharia1/subway-sign-python).
 
 ## Project overview
 The subway arrivals sign needs three overall components in place to get up and running:

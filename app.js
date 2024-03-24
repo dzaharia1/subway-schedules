@@ -142,9 +142,10 @@ app.post('/signpower/:signid', async (req, res) => {
 
 app.get('/signpower/:signId', async (req, res) => {
   let signInfo = await postgres.getSignConfig(req.params.signId);
+  signInfo = checkAutoSchedule(signInfo[0])
   console.log(signInfo);
 
-  res.json(signInfo[0].sign_on);
+  res.json(signInfo.sign_on);
 });
 
 app.get('/stations', (req, res) => {

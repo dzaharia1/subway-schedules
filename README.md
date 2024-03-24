@@ -21,6 +21,7 @@ To get the API running, you'll need the following:
 - A PostgreSQL database in the cloud. Again, Heroku will be the basis for this tutorial.
 - An API key from the [MTA Realtime Data Feeds](https://api.mta.info/#/landing)
 
+## Deploying and configuring the API
 ### Sign up for Heroku, and an MTA API key
 First, we need an environment on which to run our API and app. I have found Heroku to be an invaluable, easy to use, and cost effective platform for apps. Sign up at heroku.com. Once signed up, install the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli).
 

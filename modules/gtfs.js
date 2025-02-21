@@ -27,9 +27,6 @@ let feeds = {
 
 const requestSettings = {
     method: 'GET',
-    headers: {
-        "x-api-key": process.env.MTA_API_KEY
-    },
     encoding: null
 };
 
@@ -62,6 +59,13 @@ function setUpStations() {
 function getFeedsForStation(stopId) {
     let returnArray = [];
     let thisStation = stations.find(obj => obj.stopId.indexOf(stopId) > -1);
+
+    if (!thisStation) {
+        console.error(`No station found for stopId: ${stopId}`);
+        return returnArray; // Return empty array if no station found
+    }
+
+    console.log('Found station:', thisStation);
 
     for (let line of thisStation.lines) {
         let lineService = services.find(obj => obj.indexOf(line[0]) > -1 );
@@ -155,8 +159,25 @@ function getHeadsignforTripUpdate (routeId, trackedStopId, stopTimeUpdates) {
 
 // get the arrivals for each of the stations with stop IDs in the stopIds parameter
 function getStationSchedules(stopIds, minimumTime, tripUpdatesArray, arrivalsArray, callback) {
+    // Add validation for stopIds
+    if (!stopIds || stopIds.length === 0) {
+        console.error('No stopIds provided to getStationSchedules');
+        return callback(arrivalsArray);
+    }
+
     // get the trip updates for each of the services of the station
     let station = stations.find(obj => obj.stopId.includes(stopIds[0]));
+    
+    if (!station) {
+        console.error(`Station not found for stopId: ${stopIds[0]}`);
+        // Continue with remaining stops if any
+        if (stopIds.length > 1) {
+            const [ _, ...othersStopIds ] = stopIds;
+            return getStationSchedules(othersStopIds, minimumTime, tripUpdatesArray, arrivalsArray, callback);
+        }
+        return callback(arrivalsArray);
+    }
+
     let stationServices = getFeedsForStation(stopIds[0]);
 
     getTripUpdates(stationServices, tripUpdatesArray, (tripUpdatesArray) => {

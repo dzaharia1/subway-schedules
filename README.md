@@ -19,16 +19,13 @@ To get the API running, you'll need the following:
 - [Postico](https://eggerapps.at/postico2/) (for setting up and managing your database)
 - A way to run your code in the cloud. [Heroku](heroku.com) deployment will serve as the basis for this tutorial
 - A PostgreSQL database in the cloud. Again, Heroku will be the basis for this tutorial.
-- An API key from the [MTA Realtime Data Feeds](https://api.mta.info/#/landing)
+
+Before you get started, make sure to take a look at the [usage guidelines](https://api.mta.info/#/DataFeedAgreement) for the [subway data](https://api.mta.info/#/landing) that will power our sign. The MTA graciously makes this data available to the public. And it's the shortest, most no-nonsense usage guidelines you'll probably ever see.
 
 ## Deploying and configuring the API
-### Sign up for Heroku, and an MTA API key
+### Sign up for Heroku
 First, we need an environment on which to run our API and app. I have found Heroku to be an invaluable, easy to use, and cost effective platform for apps. Sign up at heroku.com. Once signed up, install the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli).
 
-Next, we need access to the subway data that will power our sign. The MTA graciously makes this data available to the public. Before getting started, give the [usage guidelines](https://api.mta.info/#/DataFeedAgreement) a read. It's the shortest, most no-nonsense usage guidelines you'll probably ever see.
-
-Now, [create an account](https://api.mta.info/#/signup) to get access. Once your registration is complete, log in and click on "Access Key" in the page header to access your key. You just got access to the feed information for the New York City Subway. Pretty cool!
-<!-- 
 ### 2. Sign up for Heroku
 Heroku is a cloud environment for deploying and running apps, just like this one. We're going to use it to host the API itself, the database, and the subway sign app, which you will use to configure your sign. Heroku is not a requirement for this project, but _some_ hosting platform will be. So feel free to translate these instructions to the platform[s] of your choice.
 

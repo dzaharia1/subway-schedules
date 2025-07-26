@@ -12,7 +12,7 @@ if (process.env.DATABASE_URL) {
     });
 } else {
     client = new Client({
-        connectionString: 'postgresql://dan@localhost:5432/subway-sign'
+        connectionString: 'postgresql://danzaharia@localhost:5432/subway-sign'
     });
 }
 

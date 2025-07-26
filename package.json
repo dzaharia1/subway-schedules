@@ -6,28 +6,16 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "compile-styles": "node-sass scss/main.scss --output-style expanded --source-map true --source-map-contents true --precision 6 public/css/main.css",
-    "start": "npm run compile-styles && node app.js",
+    "start": "node app.js",
     "dev": "nodemon app.js & gulp"
   },
   "author": "Dan Zaharia",
   "license": "ISC",
-  "devDependencies": {
-    "browser-sync": "^2.27.10",
-    "gulp": "^4.0.2",
-    "gulp-autoprefixer": "^8.0.0",
-    "gulp-plumber": "^1.2.1",
-    "gulp-sass": "^5.1.0",
-    "gulp-scss-lint": "^1.0.0",
-    "sass": "^1.53.0"
-  },
   "dependencies": {
-    "clean-css-cli": "^5.6.1",
     "consolidate": "^0.16.0",
     "cors": "^2.8.5",
-    "ejs": "^3.1.8",
     "express": "^4.18.1",
     "gtfs-realtime-bindings": "^0.0.6",
-    "node-sass": "^7.0.1",
     "pg": "^8.7.3",
     "request": "^2.88.2",
     "sqlstring": "^2.3.3"

@@ -1,7 +1,6 @@
 const express = require('express');
 const path = require('path');
 const cons = require('consolidate');
-const ejs = require('ejs');
 const { raw } = require('express');
 const gtfs = require('./modules/gtfs');
 const postgres = require('./modules/pg');

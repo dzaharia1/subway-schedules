@@ -1,0 +1,9 @@
+{
+    "service_id": "subway-sign-backend",
+    "service_name": "Subway Sign Backend",
+    "domain": "https://subway-sign-backend.danzaharia.com",
+    "host": "localhost",
+    "port": "3103",
+    "author": "dan",
+    "created_on": "Sat Jul 26 00:18:35 UTC 2025"
+}

@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const cons = require('consolidate');
@@ -9,8 +10,9 @@ const { post } = require('request');
 const pg = require('./modules/pg');
 
 let app = express();
-let localport = '3333';
-let localhost = 'http://localhost';
+
+const localhost = 'http://localhost';
+const localport = 3333;
 
 app.use(cors());
 app.set('views', path.join(__dirname, 'views'));

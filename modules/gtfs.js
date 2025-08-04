@@ -121,7 +121,13 @@ function setUpTerminals() {
 }
 
 function getTripUpdates (services, tripUpdatesArray, callback) {
-    service = services[0];
+    if (!services || services.length === 0) {
+        return callback(tripUpdatesArray);
+    }
+    
+    let service = services[0];
+    let remainingServices = services.slice(1); // Create a copy instead of mutating
+    
     requestSettings.url = feeds[service];
     request(requestSettings, (error, response, body) => {
         if (!error && response.statusCode == 200) {
@@ -130,22 +136,28 @@ function getTripUpdates (services, tripUpdatesArray, callback) {
             for (let entity of gtfsData.entity) {
                 if (entity.tripUpdate) { tripUpdatesArray.push(entity); }
             }
-            services.shift();
-            if (services.length > 0) {
-                getTripUpdates(services, tripUpdatesArray, callback);
+            
+            if (remainingServices.length > 0) {
+                getTripUpdates(remainingServices, tripUpdatesArray, callback);
             } else {
                 callback(tripUpdatesArray);
             }
         } else {
             console.log(error);
+            // Continue with remaining services even if this one fails
+            if (remainingServices.length > 0) {
+                getTripUpdates(remainingServices, tripUpdatesArray, callback);
+            } else {
+                callback(tripUpdatesArray);
+            }
         }
     });
 }
 
 function getHeadsignforTripUpdate (routeId, trackedStopId, stopTimeUpdates) {
     let destinationStopId = stopTimeUpdates[stopTimeUpdates.length - 1].stopId.substr(0,3);
-    destinationStopName = getStopName(destinationStopId);
-    trackedStopName = getStopName(trackedStopId.substr(0,3));
+    let destinationStopName = getStopName(destinationStopId);
+    let trackedStopName = getStopName(trackedStopId.substr(0,3));
     
     if (trackedStopId.includes(destinationStopId)) {
         let terminal = terminals.find(obj => obj.terminal == destinationStopId && obj.routeId == routeId[0]);
@@ -162,7 +174,7 @@ function getStationSchedules(stopIds, minimumTime, tripUpdatesArray, arrivalsArr
     // Add validation for stopIds
     if (!stopIds || stopIds.length === 0) {
         console.error('No stopIds provided to getStationSchedules');
-        return callback(arrivalsArray);
+        return callback(arrivalsArray || []);
     }
 
     // get the trip updates for each of the services of the station
@@ -173,15 +185,20 @@ function getStationSchedules(stopIds, minimumTime, tripUpdatesArray, arrivalsArr
         // Continue with remaining stops if any
         if (stopIds.length > 1) {
             const [ _, ...othersStopIds ] = stopIds;
-            return getStationSchedules(othersStopIds, minimumTime, tripUpdatesArray, arrivalsArray, callback);
+            return getStationSchedules(othersStopIds, minimumTime, [], arrivalsArray, callback);
         }
-        return callback(arrivalsArray);
+        return callback(arrivalsArray || []);
     }
 
     let stationServices = getFeedsForStation(stopIds[0]);
 
-    getTripUpdates(stationServices, tripUpdatesArray, (tripUpdatesArray) => {
+    // Create a new tripUpdatesArray for this call to prevent memory leaks
+    let currentTripUpdates = [];
+    
+    getTripUpdates(stationServices, currentTripUpdates, (tripUpdatesArray) => {
         let now = Date.now();
+        let currentArrivals = [];
+        
         for (let tripUpdate of tripUpdatesArray) {
             let stopTimeUpdates = tripUpdate.tripUpdate.stopTimeUpdate;
             for (let stopTimeUpdate of stopTimeUpdates) {
@@ -195,18 +212,21 @@ function getStationSchedules(stopIds, minimumTime, tripUpdatesArray, arrivalsArr
                                                                      scheduleItem.stopId,
                                                                      stopTimeUpdates);
                     if (scheduleItem.minutesUntil >= minimumTime) {
-                        arrivalsArray.push(scheduleItem);
+                        currentArrivals.push(scheduleItem);
                     }
                 }
             }
         }
 
+        // Merge current arrivals with existing ones
+        let allArrivals = [...(arrivalsArray || []), ...currentArrivals];
+
         if (stopIds.length > 1) {
             const [ a, ...othersStopIds ] = stopIds;
-            getStationSchedules(othersStopIds, minimumTime, tripUpdatesArray, arrivalsArray, callback)
+            getStationSchedules(othersStopIds, minimumTime, [], allArrivals, callback);
         } else {
-            arrivalsArray.sort((a, b) => (a.minutesUntil > b.minutesUntil) ? 1: -1);
-            callback(arrivalsArray);
+            allArrivals.sort((a, b) => (a.minutesUntil > b.minutesUntil) ? 1: -1);
+            callback(allArrivals);
         }
     });
 }

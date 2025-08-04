@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "compile-styles": "node-sass scss/main.scss --output-style expanded --source-map true --source-map-contents true --precision 6 public/css/main.css",
     "start": "node app.js",
-    "dev": "nodemon app.js & gulp"
+    "dev": "nodemon app.js"
   },
   "author": "Dan Zaharia",
   "license": "ISC",

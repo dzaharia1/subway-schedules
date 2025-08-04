@@ -38,26 +38,46 @@ app.get('/sign/:signId', async (req, res) => {
     let directionFilter = signInfo.direction;
     let minimumTime = signInfo.minimum_time;
     
-    gtfs.getStationSchedules(stations, minimumTime, [], [], (schedule) => {
-      if (directionFilter && directionFilter != '') {
-        schedule = schedule.filter(obj => obj.stopId.includes(directionFilter));
+    // Add timeout to prevent hanging requests
+    const timeout = setTimeout(() => {
+      if (!res.headersSent) {
+        console.error('Timeout in /sign/:signId for signId:', signId);
+        res.status(504).json({ error: 'Request timeout' });
       }
-      schedule = schedule.slice(0, signInfo.max_arrivals_to_show);
-      schedule.unshift({
-        rotating: signInfo.rotating,
-        numArrivals: signInfo.max_arrivals_to_show,
-        shutOffSchedule: signInfo.shutoff_schedule,
-        turnOnTime: signInfo.turnon_time,
-        shutOffTime: signInfo.turnoff_time,
-        warnTime: signInfo.warn_time,
-        signOn: signInfo.sign_on,
-        rotationTime: signInfo.rotation_time
-      });
-      res.json(schedule);
+    }, 30000); // 30 second timeout
+    
+    gtfs.getStationSchedules(stations, minimumTime, [], [], (schedule) => {
+      try {
+        clearTimeout(timeout); // Clear timeout on successful response
+        
+        if (directionFilter && directionFilter != '') {
+          schedule = schedule.filter(obj => obj.stopId.includes(directionFilter));
+        }
+        schedule = schedule.slice(0, signInfo.max_arrivals_to_show);
+        schedule.unshift({
+          rotating: signInfo.rotating,
+          numArrivals: signInfo.max_arrivals_to_show,
+          shutOffSchedule: signInfo.shutoff_schedule,
+          turnOnTime: signInfo.turnon_time,
+          shutOffTime: signInfo.turnoff_time,
+          warnTime: signInfo.warn_time,
+          signOn: signInfo.sign_on,
+          rotationTime: signInfo.rotation_time
+        });
+        res.json(schedule);
+      } catch (error) {
+        clearTimeout(timeout); // Clear timeout on error
+        console.error('Error in getStationSchedules callback:', error);
+        if (!res.headersSent) {
+          res.status(500).json({ error: 'Internal server error' });
+        }
+      }
     });
   } catch (error) {
     console.error('Error in /sign/:signId:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
 });
 

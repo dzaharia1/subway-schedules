@@ -6,8 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "compile-styles": "node-sass scss/main.scss --output-style expanded --source-map true --source-map-contents true --precision 6 public/css/main.css",
-    "start": "node app.js",
-    "dev": "nodemon app.js"
+    "start": "node --expose-gc app.js",
+    "dev": "nodemon --expose-gc app.js"
   },
   "author": "Dan Zaharia",
   "license": "ISC",
@@ -17,8 +17,8 @@
     "dotenv": "^17.2.1",
     "express": "^4.18.1",
     "gtfs-realtime-bindings": "^0.0.6",
+    "node-fetch": "^2.6.7",
     "pg": "^8.7.3",
-    "request": "^2.88.2",
     "sqlstring": "^2.3.3"
   }
 }

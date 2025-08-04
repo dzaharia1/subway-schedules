@@ -11,6 +11,22 @@ let app = express();
 const localhost = 'http://localhost';
 const localport = 3333;
 
+// Memory monitoring
+function logMemoryUsage(label = '') {
+  const memUsage = process.memoryUsage();
+  console.log(`${label} Memory Usage:`, {
+    rss: `${Math.round(memUsage.rss / 1024 / 1024)} MB`,
+    heapTotal: `${Math.round(memUsage.heapTotal / 1024 / 1024)} MB`,
+    heapUsed: `${Math.round(memUsage.heapUsed / 1024 / 1024)} MB`,
+    external: `${Math.round(memUsage.external / 1024 / 1024)} MB`
+  });
+}
+
+// Log memory usage every 30 seconds
+setInterval(() => {
+  logMemoryUsage('Periodic');
+}, 30000);
+
 app.use(cors());
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -26,6 +42,8 @@ app.get('/', (req, res) => {
 
 app.get('/sign/:signId', async (req, res) => {
   try {
+    logMemoryUsage('Before processing');
+    
     let signId = req.params.signId;
     let signInfo = await postgres.getSignConfig(signId);
     
@@ -64,7 +82,21 @@ app.get('/sign/:signId', async (req, res) => {
           signOn: signInfo.sign_on,
           rotationTime: signInfo.rotation_time
         });
+        
         res.json(schedule);
+        
+        // Memory cleanup after response
+        schedule = null;
+        signInfo = null;
+        stations = null;
+        
+        // Force garbage collection if available
+        if (global.gc) {
+          global.gc();
+        }
+        
+        logMemoryUsage('After processing');
+        
       } catch (error) {
         clearTimeout(timeout); // Clear timeout on error
         console.error('Error in getStationSchedules callback:', error);

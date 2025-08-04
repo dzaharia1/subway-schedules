@@ -1,7 +1,7 @@
 const path = require('path');
 const GtfsRealtimeBindings = require('gtfs-realtime-bindings');
 const https = require('https');
-const request = require('request');
+const fetch = require('node-fetch');
 const fs = require('fs');
 
 let stationsFile = path.join(__dirname, '../agencyInfo/stations.txt');
@@ -25,10 +25,8 @@ let feeds = {
     "SI": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-si"
 }
 
-const requestSettings = {
-    method: 'GET',
-    encoding: null
-};
+// API key for MTA feeds
+const API_KEY = process.env.MTA_API_KEY || 'NaAY1FHNnu7I49kZeb681az1hn7YW4z68zwnnN8X';
 
 setUpStations();
 setUpRoutes();
@@ -79,7 +77,7 @@ function getFeedsForStation(stopId) {
 
 function getStopName (stopId) {
     let stopInQuestion = stations.find(obj => stopId.includes(obj.stopId));
-    return stopInQuestion.name;
+    return stopInQuestion ? stopInQuestion.name : 'Unknown Station';
 }
 
 function setUpRoutes() {
@@ -128,21 +126,54 @@ function getTripUpdates (services, tripUpdatesArray, callback) {
     let service = services[0];
     let remainingServices = services.slice(1); // Create a copy instead of mutating
     
-    requestSettings.url = feeds[service];
-    request(requestSettings, (error, response, body) => {
-        if (!error && response.statusCode == 200) {
-            let gtfsData = GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(body);
-            
-            for (let entity of gtfsData.entity) {
-                if (entity.tripUpdate) { tripUpdatesArray.push(entity); }
+    let requestSettings = {
+        method: 'GET',
+        headers: {
+            'x-api-key': API_KEY
+        }
+    };
+
+    fetch(feeds[service], requestSettings)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
+            return response.arrayBuffer();
+        })
+        .then(arrayBuffer => {
+            let gtfsData = GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(new Uint8Array(arrayBuffer));
+            
+            // Only extract the necessary data to prevent memory leaks
+            for (let entity of gtfsData.entity) {
+                if (entity.tripUpdate) { 
+                    // Create a clean copy with only needed properties
+                    let cleanEntity = {
+                        tripUpdate: {
+                            trip: {
+                                routeId: entity.tripUpdate.trip.routeId
+                            },
+                            stopTimeUpdate: entity.tripUpdate.stopTimeUpdate.map(update => ({
+                                stopId: update.stopId,
+                                arrival: update.arrival ? {
+                                    time: update.arrival.time
+                                } : null
+                            }))
+                        }
+                    };
+                    tripUpdatesArray.push(cleanEntity);
+                }
+            }
+            
+            // Clear the large GTFS data object
+            gtfsData = null;
             
             if (remainingServices.length > 0) {
                 getTripUpdates(remainingServices, tripUpdatesArray, callback);
             } else {
                 callback(tripUpdatesArray);
             }
-        } else {
+        })
+        .catch(error => {
             console.log(error);
             // Continue with remaining services even if this one fails
             if (remainingServices.length > 0) {
@@ -150,8 +181,7 @@ function getTripUpdates (services, tripUpdatesArray, callback) {
             } else {
                 callback(tripUpdatesArray);
             }
-        }
-    });
+        });
 }
 
 function getHeadsignforTripUpdate (routeId, trackedStopId, stopTimeUpdates) {

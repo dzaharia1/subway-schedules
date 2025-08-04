@@ -22,10 +22,10 @@ function logMemoryUsage(label = '') {
   });
 }
 
-// Log memory usage every 30 seconds
+// Log memory usage every five minutes
 setInterval(() => {
   logMemoryUsage('Periodic');
-}, 30000);
+}, 300000);
 
 app.use(cors());
 app.set('views', path.join(__dirname, 'views'));
@@ -42,8 +42,6 @@ app.get('/', (req, res) => {
 
 app.get('/sign/:signId', async (req, res) => {
   try {
-    logMemoryUsage('Before processing');
-    
     let signId = req.params.signId;
     let signInfo = await postgres.getSignConfig(signId);
     
@@ -95,8 +93,7 @@ app.get('/sign/:signId', async (req, res) => {
           global.gc();
         }
         
-        logMemoryUsage('After processing');
-        
+  
       } catch (error) {
         clearTimeout(timeout); // Clear timeout on error
         console.error('Error in getStationSchedules callback:', error);

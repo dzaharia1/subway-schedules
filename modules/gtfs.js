@@ -1,8 +1,23 @@
 const path = require('path');
 const GtfsRealtimeBindings = require('gtfs-realtime-bindings');
 const https = require('https');
-const fetch = require('node-fetch');
+// Use native fetch for Node.js 18+ (you're on 22.11.0)
+// const fetch = require('node-fetch');
 const fs = require('fs');
+
+// Simple in-memory cache for GTFS data
+const gtfsCache = new Map();
+const CACHE_TTL = 60 * 1000; // 60 seconds in milliseconds
+
+// Circuit breaker state
+const circuitBreaker = {
+    failures: 0,
+    lastFailureTime: 0,
+    state: 'CLOSED', // CLOSED, OPEN, HALF_OPEN
+    threshold: 5, // Number of failures before opening circuit
+    timeout: 30000, // 30 seconds before trying again
+    resetTimeout: 60000 // 60 seconds before resetting to CLOSED
+};
 
 let stationsFile = path.join(__dirname, '../agencyInfo/stations.txt');
 let routesFile =  path.join(__dirname, '../agencyInfo/routes.txt');
@@ -27,6 +42,74 @@ let feeds = {
 
 // API key for MTA feeds
 const API_KEY = process.env.MTA_API_KEY || 'NaAY1FHNnu7I49kZeb681az1hn7YW4z68zwnnN8X';
+
+// Cache management functions
+function getCachedData(key) {
+    const cached = gtfsCache.get(key);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+        return cached.data;
+    }
+    gtfsCache.delete(key);
+    return null;
+}
+
+function setCachedData(key, data) {
+    gtfsCache.set(key, {
+        data: data,
+        timestamp: Date.now()
+    });
+    
+    // Clean up old cache entries
+    if (gtfsCache.size > 100) { // Limit cache size
+        const oldestKey = gtfsCache.keys().next().value;
+        gtfsCache.delete(oldestKey);
+    }
+}
+
+// Circuit breaker functions
+function canMakeRequest() {
+    const now = Date.now();
+    
+    if (circuitBreaker.state === 'OPEN') {
+        if (now - circuitBreaker.lastFailureTime > circuitBreaker.timeout) {
+            circuitBreaker.state = 'HALF_OPEN';
+            return true;
+        }
+        return false;
+    }
+    
+    return true;
+}
+
+function recordSuccess() {
+    circuitBreaker.failures = 0;
+    circuitBreaker.state = 'CLOSED';
+}
+
+function recordFailure() {
+    circuitBreaker.failures++;
+    circuitBreaker.lastFailureTime = Date.now();
+    
+    if (circuitBreaker.failures >= circuitBreaker.threshold) {
+        circuitBreaker.state = 'OPEN';
+        console.warn('Circuit breaker opened due to multiple failures');
+    }
+}
+
+// Fetch with timeout using native fetch
+async function fetchWithTimeout(url, options, timeout = 10000) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    
+    try {
+        const response = await fetch(url, { ...options, signal: controller.signal });
+        clearTimeout(timeoutId);
+        return response;
+    } catch (error) {
+        clearTimeout(timeoutId);
+        throw error;
+    }
+}
 
 setUpStations();
 setUpRoutes();
@@ -118,70 +201,108 @@ function setUpTerminals() {
     });
 }
 
-function getTripUpdates (services, tripUpdatesArray, callback) {
+async function getTripUpdates(services, tripUpdatesArray, callback) {
     if (!services || services.length === 0) {
         return callback(tripUpdatesArray);
     }
     
-    let service = services[0];
-    let remainingServices = services.slice(1); // Create a copy instead of mutating
+    // Check cache first
+    const cacheKey = `gtfs_${services.sort().join('_')}`;
+    const cachedData = getCachedData(cacheKey);
+    if (cachedData) {
+        console.log('Using cached GTFS data');
+        return callback(cachedData);
+    }
     
-    let requestSettings = {
-        method: 'GET',
-        headers: {
-            'x-api-key': API_KEY
-        }
-    };
-
-    fetch(feeds[service], requestSettings)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.arrayBuffer();
-        })
-        .then(arrayBuffer => {
-            let gtfsData = GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(new Uint8Array(arrayBuffer));
-            
-            // Only extract the necessary data to prevent memory leaks
-            for (let entity of gtfsData.entity) {
-                if (entity.tripUpdate) { 
-                    // Create a clean copy with only needed properties
-                    let cleanEntity = {
-                        tripUpdate: {
-                            trip: {
-                                routeId: entity.tripUpdate.trip.routeId
-                            },
-                            stopTimeUpdate: entity.tripUpdate.stopTimeUpdate.map(update => ({
-                                stopId: update.stopId,
-                                arrival: update.arrival ? {
-                                    time: update.arrival.time
-                                } : null
-                            }))
-                        }
-                    };
-                    tripUpdatesArray.push(cleanEntity);
+    // Check circuit breaker
+    if (!canMakeRequest()) {
+        console.warn('Circuit breaker is open, returning empty data');
+        return callback([]);
+    }
+    
+    try {
+        // Fetch all services in parallel
+        const promises = services.map(async (service) => {
+            const requestSettings = {
+                method: 'GET',
+                headers: {
+                    'x-api-key': API_KEY
                 }
-            }
+            };
             
-            // Clear the large GTFS data object
-            gtfsData = null;
-            
-            if (remainingServices.length > 0) {
-                getTripUpdates(remainingServices, tripUpdatesArray, callback);
-            } else {
-                callback(tripUpdatesArray);
-            }
-        })
-        .catch(error => {
-            console.log(error);
-            // Continue with remaining services even if this one fails
-            if (remainingServices.length > 0) {
-                getTripUpdates(remainingServices, tripUpdatesArray, callback);
-            } else {
-                callback(tripUpdatesArray);
+            try {
+                console.log(`Fetching GTFS data for service: ${service}`);
+                const response = await fetchWithTimeout(feeds[service], requestSettings, 10000);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                console.log(`Received response for ${service}, processing data...`);
+                const arrayBuffer = await response.arrayBuffer();
+                let gtfsData = GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(new Uint8Array(arrayBuffer));
+                
+                console.log(`GTFS data structure for ${service}:`, {
+                    hasEntity: !!gtfsData.entity,
+                    entityType: typeof gtfsData.entity,
+                    entityLength: gtfsData.entity ? gtfsData.entity.length : 'N/A'
+                });
+                
+                // Extract only necessary data to prevent memory leaks
+                const cleanEntities = [];
+                if (gtfsData.entity && Array.isArray(gtfsData.entity)) {
+                    for (let entity of gtfsData.entity) {
+                        if (entity.tripUpdate) {
+                            cleanEntities.push({
+                                tripUpdate: {
+                                    trip: {
+                                        routeId: entity.tripUpdate.trip.routeId
+                                    },
+                                    stopTimeUpdate: entity.tripUpdate.stopTimeUpdate.map(update => ({
+                                        stopId: update.stopId,
+                                        arrival: update.arrival ? {
+                                            time: update.arrival.time
+                                        } : null
+                                    }))
+                                }
+                            });
+                        }
+                    }
+                }
+                
+                // Clear the large GTFS data object
+                gtfsData = null;
+                
+                console.log(`Successfully processed ${service}, found ${cleanEntities.length} entities`);
+                recordSuccess(); // Record successful request
+                return cleanEntities;
+                
+            } catch (error) {
+                console.error(`Error fetching ${service}:`, error.message);
+                console.error(`Full error:`, error);
+                recordFailure(); // Record failed request
+                return []; // Return empty array on error
             }
         });
+        
+        // Wait for all requests to complete
+        const results = await Promise.all(promises);
+        
+        // Flatten results and merge with existing tripUpdatesArray
+        const flattenedResults = results.reduce((acc, val) => acc.concat(val), []);
+        const allUpdates = [...(tripUpdatesArray || []), ...flattenedResults];
+        
+        // Cache the result
+        setCachedData(cacheKey, allUpdates);
+        
+        callback(allUpdates);
+        
+    } catch (error) {
+        console.error('Error in getTripUpdates:', error);
+        console.error('Error stack:', error.stack);
+        recordFailure();
+        callback(tripUpdatesArray || []);
+    }
 }
 
 function getHeadsignforTripUpdate (routeId, trackedStopId, stopTimeUpdates) {
@@ -214,7 +335,7 @@ function getStationSchedules(stopIds, minimumTime, tripUpdatesArray, arrivalsArr
         console.error(`Station not found for stopId: ${stopIds[0]}`);
         // Continue with remaining stops if any
         if (stopIds.length > 1) {
-            const [ _, ...othersStopIds ] = stopIds;
+            let [ _, ...othersStopIds ] = stopIds;
             return getStationSchedules(othersStopIds, minimumTime, [], arrivalsArray, callback);
         }
         return callback(arrivalsArray || []);
@@ -252,7 +373,7 @@ function getStationSchedules(stopIds, minimumTime, tripUpdatesArray, arrivalsArr
         let allArrivals = [...(arrivalsArray || []), ...currentArrivals];
 
         if (stopIds.length > 1) {
-            const [ a, ...othersStopIds ] = stopIds;
+            let [ a, ...othersStopIds ] = stopIds;
             getStationSchedules(othersStopIds, minimumTime, [], allArrivals, callback);
         } else {
             allArrivals.sort((a, b) => (a.minutesUntil > b.minutesUntil) ? 1: -1);
@@ -311,3 +432,24 @@ exports.setUpRoutes = setUpRoutes;
 exports.getTripUpdates = getTripUpdates;
 exports.getStationSchedules = getStationSchedules;
 exports.getVehicleFromTripID = getVehicleFromTripID;
+
+// Export monitoring functions
+exports.getCacheStats = () => ({
+    size: gtfsCache.size,
+    maxSize: 100,
+    ttl: CACHE_TTL / 1000
+});
+
+exports.getCircuitBreakerStatus = () => ({
+    state: circuitBreaker.state,
+    failures: circuitBreaker.failures,
+    threshold: circuitBreaker.threshold,
+    lastFailureTime: circuitBreaker.lastFailureTime,
+    canMakeRequest: canMakeRequest()
+});
+
+// Clear cache function for testing/debugging
+exports.clearCache = () => {
+    gtfsCache.clear();
+    console.log('GTFS cache cleared');
+};

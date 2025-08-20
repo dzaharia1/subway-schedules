@@ -245,6 +245,33 @@ app.get('/signids', async (req, res) => {
   }
 });
 
+// Add monitoring endpoints for GTFS performance
+app.get('/gtfs/status', (req, res) => {
+  try {
+    const cacheStats = gtfs.getCacheStats();
+    const circuitBreakerStatus = gtfs.getCircuitBreakerStatus();
+    
+    res.json({
+      cache: cacheStats,
+      circuitBreaker: circuitBreakerStatus,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error in /gtfs/status:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/gtfs/clear-cache', (req, res) => {
+  try {
+    gtfs.clearCache();
+    res.json({ message: 'GTFS cache cleared successfully' });
+  } catch (error) {
+    console.error('Error in /gtfs/clear-cache:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 var server = app.listen(app.get('port'), () => {
   app.address = app.get('host') + ':' + server.address().port;
   console.log('Listening at ' + app.address);

@@ -209,7 +209,8 @@ function setUpTerminals() {
 
 async function getTripUpdates(services, tripUpdatesArray, callback) {
     if (!services || services.length === 0) {
-        return callback(tripUpdatesArray);
+        callback(tripUpdatesArray);
+        return;
     }
     
     // Check cache first
@@ -217,13 +218,15 @@ async function getTripUpdates(services, tripUpdatesArray, callback) {
     const cachedData = getCachedData(cacheKey);
     if (cachedData) {
         console.log('Using cached GTFS data');
-        return callback(cachedData);
+        callback(cachedData);
+        return;
     }
     
     // Check circuit breaker
     if (!canMakeRequest()) {
         console.warn('Circuit breaker is open, returning empty data');
-        return callback([]);
+        callback([]);
+        return;
     }
     
     try {
@@ -309,6 +312,15 @@ async function getTripUpdates(services, tripUpdatesArray, callback) {
         recordFailure();
         callback(tripUpdatesArray || []);
     }
+    
+    // Safety timeout to ensure callback is always called
+    setTimeout(() => {
+        if (!callback.called) {
+            console.warn('Safety timeout triggered, calling callback with empty data');
+            callback.called = true;
+            callback(tripUpdatesArray || []);
+        }
+    }, 25000); // 25 seconds safety timeout
 }
 
 function getHeadsignforTripUpdate (routeId, trackedStopId, stopTimeUpdates) {
@@ -352,7 +364,22 @@ function getStationSchedules(stopIds, minimumTime, tripUpdatesArray, arrivalsArr
     // Create a new tripUpdatesArray for this call to prevent memory leaks
     let currentTripUpdates = [];
     
+    // Add logging to debug the flow
+    console.log(`Processing station ${stopIds[0]} with services: ${stationServices.join(', ')}`);
+    
+    // Add safety timeout for the entire operation
+    let callbackCalled = false;
+    const safetyTimeout = setTimeout(() => {
+        if (!callbackCalled) {
+            console.warn(`Safety timeout triggered for station ${stopIds[0]}, calling callback with current data`);
+            callbackCalled = true;
+            callback(arrivalsArray || []);
+        }
+    }, 25000); // 25 seconds safety timeout
+    
     getTripUpdates(stationServices, currentTripUpdates, (tripUpdatesArray) => {
+        console.log(`Received trip updates for ${stopIds[0]}: ${tripUpdatesArray.length} updates`);
+        
         let now = Date.now();
         let currentArrivals = [];
         
@@ -375,15 +402,26 @@ function getStationSchedules(stopIds, minimumTime, tripUpdatesArray, arrivalsArr
             }
         }
 
+        console.log(`Found ${currentArrivals.length} arrivals for ${stopIds[0]}`);
+
         // Merge current arrivals with existing ones
         let allArrivals = [...(arrivalsArray || []), ...currentArrivals];
 
         if (stopIds.length > 1) {
             let [ a, ...othersStopIds ] = stopIds;
+            console.log(`Processing remaining stops: ${othersStopIds.join(', ')}`);
+            clearTimeout(safetyTimeout); // Clear safety timeout for this iteration
+            callbackCalled = true; // Mark callback as called for recursive call
             getStationSchedules(othersStopIds, minimumTime, [], allArrivals, callback);
         } else {
+            console.log(`Final processing complete, sorting ${allArrivals.length} arrivals`);
             allArrivals.sort((a, b) => (a.minutesUntil > b.minutesUntil) ? 1: -1);
-            callback(allArrivals);
+            console.log(`Calling final callback with ${allArrivals.length} arrivals`);
+            clearTimeout(safetyTimeout); // Clear safety timeout
+            if (!callbackCalled) {
+                callbackCalled = true;
+                callback(allArrivals);
+            }
         }
     });
 }

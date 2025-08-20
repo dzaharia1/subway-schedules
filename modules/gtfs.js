@@ -115,11 +115,7 @@ setUpStations();
 setUpRoutes();
 setUpTerminals();
 
-// Preload cache with GTFS data for all services
-setTimeout(() => {
-    console.log('Preloading GTFS cache...');
-    preloadGTFSCache();
-}, 5000); // Wait 5 seconds for stations/routes to be loaded
+// Initial cache preload will be handled by the interval setup below
 
 function setUpStations() {
     console.log('Setting up stations');
@@ -481,7 +477,8 @@ exports.getVehicleFromTripID = getVehicleFromTripID;
 exports.getCacheStats = () => ({
     size: gtfsCache.size,
     maxSize: 100,
-    ttl: CACHE_TTL / 1000
+    ttl: CACHE_TTL / 1000,
+    refreshIntervalActive: !!cacheRefreshInterval
 });
 
 exports.getCircuitBreakerStatus = () => ({
@@ -498,13 +495,41 @@ exports.clearCache = () => {
     console.log('GTFS cache cleared');
 };
 
+// Stop cache refresh interval for testing/debugging
+exports.stopCacheRefresh = () => {
+    if (cacheRefreshInterval) {
+        clearInterval(cacheRefreshInterval);
+        cacheRefreshInterval = null;
+        console.log('GTFS cache refresh stopped');
+    }
+};
+
 // Manual cache preload function
 exports.preloadCache = () => {
     console.log('Manual cache preload triggered');
     preloadGTFSCache();
 };
 
+// Restart cache refresh interval
+exports.restartCacheRefresh = () => {
+    // Stop existing interval
+    if (cacheRefreshInterval) {
+        clearInterval(cacheRefreshInterval);
+        cacheRefreshInterval = null;
+    }
+    
+    // Start new interval
+    cacheRefreshInterval = setInterval(() => {
+        console.log('Refreshing GTFS cache...');
+        preloadGTFSCache();
+    }, 45000); // 45 seconds
+    
+    console.log('GTFS cache refresh restarted');
+};
+
 // Preload cache function
+let cacheRefreshInterval = null; // Store interval reference
+
 async function preloadGTFSCache() {
     try {
         console.log('Starting GTFS cache preload...');
@@ -584,12 +609,6 @@ async function preloadGTFSCache() {
         
         console.log(`GTFS cache preload complete! Cached ${allUpdates.length} total entities`);
         
-        // Set up periodic cache refresh (every 45 seconds to ensure fresh data)
-        setInterval(() => {
-            console.log('Refreshing GTFS cache...');
-            preloadGTFSCache();
-        }, 45000); // 45 seconds
-        
     } catch (error) {
         console.error('Error during GTFS cache preload:', error);
         // Retry preload after 30 seconds if it fails
@@ -599,3 +618,18 @@ async function preloadGTFSCache() {
         }, 30000);
     }
 }
+
+// Set up periodic cache refresh (every 45 seconds to ensure fresh data)
+// Only set this up once, not inside the preload function
+setTimeout(() => {
+    // Clear any existing interval first
+    if (cacheRefreshInterval) {
+        clearInterval(cacheRefreshInterval);
+    }
+    
+    // Set up the periodic refresh
+    cacheRefreshInterval = setInterval(() => {
+        console.log('Refreshing GTFS cache...');
+        preloadGTFSCache();
+    }, 45000); // 45 seconds
+}, 5000); // Wait 5 seconds for initial setup

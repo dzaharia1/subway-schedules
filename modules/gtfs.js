@@ -115,6 +115,12 @@ setUpStations();
 setUpRoutes();
 setUpTerminals();
 
+// Preload cache with GTFS data for all services
+setTimeout(() => {
+    console.log('Preloading GTFS cache...');
+    preloadGTFSCache();
+}, 5000); // Wait 5 seconds for stations/routes to be loaded
+
 function setUpStations() {
     console.log('Setting up stations');
     fs.readFile(stationsFile, {encoding: 'utf8'}, (err, data) => {
@@ -453,3 +459,105 @@ exports.clearCache = () => {
     gtfsCache.clear();
     console.log('GTFS cache cleared');
 };
+
+// Manual cache preload function
+exports.preloadCache = () => {
+    console.log('Manual cache preload triggered');
+    preloadGTFSCache();
+};
+
+// Preload cache function
+async function preloadGTFSCache() {
+    try {
+        console.log('Starting GTFS cache preload...');
+        
+        // Create a cache key for all services
+        const allServicesKey = `gtfs_${services.sort().join('_')}`;
+        
+        // Check if we already have cached data
+        const existingCache = getCachedData(allServicesKey);
+        if (existingCache) {
+            console.log('Cache already contains data, skipping preload');
+            return;
+        }
+        
+        console.log(`Preloading cache for services: ${services.join(', ')}`);
+        
+        // Fetch data for all services in parallel
+        const promises = services.map(async (service) => {
+            const requestSettings = {
+                method: 'GET',
+                headers: {
+                    'x-api-key': API_KEY
+                }
+            };
+            
+            try {
+                console.log(`Preloading ${service}...`);
+                const response = await fetchWithTimeout(feeds[service], requestSettings, 15000);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const arrayBuffer = await response.arrayBuffer();
+                let gtfsData = GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(new Uint8Array(arrayBuffer));
+                
+                // Extract only necessary data to prevent memory leaks
+                const cleanEntities = [];
+                if (gtfsData.entity && Array.isArray(gtfsData.entity)) {
+                    for (let entity of gtfsData.entity) {
+                        if (entity.tripUpdate) {
+                            cleanEntities.push({
+                                tripUpdate: {
+                                    trip: {
+                                        routeId: entity.tripUpdate.trip.routeId
+                                    },
+                                    stopTimeUpdate: entity.tripUpdate.stopTimeUpdate.map(update => ({
+                                        stopId: update.stopId,
+                                        arrival: update.arrival ? {
+                                            time: update.arrival.time
+                                        } : null
+                                    }))
+                                }
+                            });
+                        }
+                    }
+                }
+                
+                // Clear the large GTFS data object
+                gtfsData = null;
+                
+                console.log(`Preloaded ${service}: ${cleanEntities.length} entities`);
+                return cleanEntities;
+                
+            } catch (error) {
+                console.error(`Error preloading ${service}:`, error.message);
+                return []; // Return empty array on error
+            }
+        });
+        
+        // Wait for all preload requests to complete
+        const results = await Promise.all(promises);
+        const allUpdates = results.reduce((acc, val) => acc.concat(val), []);
+        
+        // Cache the preloaded data
+        setCachedData(allServicesKey, allUpdates);
+        
+        console.log(`GTFS cache preload complete! Cached ${allUpdates.length} total entities`);
+        
+        // Set up periodic cache refresh (every 45 seconds to ensure fresh data)
+        setInterval(() => {
+            console.log('Refreshing GTFS cache...');
+            preloadGTFSCache();
+        }, 45000); // 45 seconds
+        
+    } catch (error) {
+        console.error('Error during GTFS cache preload:', error);
+        // Retry preload after 30 seconds if it fails
+        setTimeout(() => {
+            console.log('Retrying GTFS cache preload...');
+            preloadGTFSCache();
+        }, 30000);
+    }
+}

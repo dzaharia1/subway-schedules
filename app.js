@@ -272,6 +272,16 @@ app.post('/gtfs/clear-cache', (req, res) => {
   }
 });
 
+app.post('/gtfs/preload-cache', (req, res) => {
+  try {
+    gtfs.preloadCache();
+    res.json({ message: 'GTFS cache preload triggered successfully' });
+  } catch (error) {
+    console.error('Error in /gtfs/preload-cache:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 var server = app.listen(app.get('port'), () => {
   app.address = app.get('host') + ':' + server.address().port;
   console.log('Listening at ' + app.address);

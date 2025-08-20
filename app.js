@@ -1,16 +1,31 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const cons = require('consolidate');
-const { raw } = require('express');
 const gtfs = require('./modules/gtfs');
 const postgres = require('./modules/pg');
 const cors = require('cors');
-const { post } = require('request');
-const pg = require('./modules/pg');
 
 let app = express();
-let localport = '3333';
-let localhost = 'http://localhost';
+
+const localhost = 'http://localhost';
+const localport = 3333;
+
+// Memory monitoring
+function logMemoryUsage(label = '') {
+  const memUsage = process.memoryUsage();
+  console.log(`${label} Memory Usage:`, {
+    rss: `${Math.round(memUsage.rss / 1024 / 1024)} MB`,
+    heapTotal: `${Math.round(memUsage.heapTotal / 1024 / 1024)} MB`,
+    heapUsed: `${Math.round(memUsage.heapUsed / 1024 / 1024)} MB`,
+    external: `${Math.round(memUsage.external / 1024 / 1024)} MB`
+  });
+}
+
+// Log memory usage every five minutes
+setInterval(() => {
+  logMemoryUsage('Periodic');
+}, 300000);
 
 app.use(cors());
 app.set('views', path.join(__dirname, 'views'));
@@ -26,124 +41,195 @@ app.get('/', (req, res) => {
 });
 
 app.get('/sign/:signId', async (req, res) => {
-  let signId = req.params.signId;
-  let signInfo = await postgres.getSignConfig(signId);
-  signInfo = checkAutoSchedule(signInfo[0]);
-  let stations = signInfo.stations;
-  let directionFilter = signInfo.direction;
-  let minimumTime = signInfo.minimum_time;
-  
-  gtfs.getStationSchedules(stations, minimumTime, [], [], (schedule) => {
-    if (directionFilter && directionFilter != '') {
-      schedule = schedule.filter(obj => obj.stopId.includes(directionFilter));
+  try {
+    let signId = req.params.signId;
+    let signInfo = await postgres.getSignConfig(signId);
+    
+    if (!signInfo || signInfo.length === 0) {
+      return res.status(404).json({ error: `Sign ${signId} not found` });
     }
-    schedule = schedule.slice(0, signInfo.max_arrivals_to_show);
-    schedule.unshift({
-      rotating: signInfo.rotating,
-      numArrivals: signInfo.max_arrivals_to_show,
-      shutOffSchedule: signInfo.shutoff_schedule,
-      turnOnTime: signInfo.turnon_time,
-      shutOffTime: signInfo.turnoff_time,
-      warnTime: signInfo.warn_time,
-      signOn: signInfo.sign_on,
-      rotationTime: signInfo.rotation_time
+    
+    signInfo = checkAutoSchedule(signInfo[0]);
+    let stations = signInfo.stations;
+    let directionFilter = signInfo.direction;
+    let minimumTime = signInfo.minimum_time;
+    
+    // Add timeout to prevent hanging requests
+    const timeout = setTimeout(() => {
+      if (!res.headersSent) {
+        console.error('Timeout in /sign/:signId for signId:', signId);
+        res.status(504).json({ error: 'Request timeout' });
+      }
+    }, 30000); // 30 second timeout
+    
+    gtfs.getStationSchedules(stations, minimumTime, [], [], (schedule) => {
+      try {
+        clearTimeout(timeout); // Clear timeout on successful response
+        
+        if (directionFilter && directionFilter != '') {
+          schedule = schedule.filter(obj => obj.stopId.includes(directionFilter));
+        }
+        schedule = schedule.slice(0, signInfo.max_arrivals_to_show);
+        schedule.unshift({
+          rotating: signInfo.rotating,
+          numArrivals: signInfo.max_arrivals_to_show,
+          shutOffSchedule: signInfo.shutoff_schedule,
+          turnOnTime: signInfo.turnon_time,
+          shutOffTime: signInfo.turnoff_time,
+          warnTime: signInfo.warn_time,
+          signOn: signInfo.sign_on,
+          rotationTime: signInfo.rotation_time
+        });
+        
+        res.json(schedule);
+        
+        // Memory cleanup after response
+        schedule = null;
+        signInfo = null;
+        stations = null;
+        
+        // Force garbage collection if available
+        if (global.gc) {
+          global.gc();
+        }
+        
+  
+      } catch (error) {
+        clearTimeout(timeout); // Clear timeout on error
+        console.error('Error in getStationSchedules callback:', error);
+        if (!res.headersSent) {
+          res.status(500).json({ error: 'Internal server error' });
+        }
+      }
     });
-    res.json(schedule);
-  });
+  } catch (error) {
+    console.error('Error in /sign/:signId:', error);
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
 });
 
 app.post('/setstops/:signId', async (req, res) => {
-  let signId = req.params.signId;
-  let stops = req.query.stops.split(',');
-  let stopsString = "";
-  for (let stop of stops) { stopsString += `"${stop}",` }
-  stopsString = stopsString.substr(0, stopsString.length - 1);
+  try {
+    let signId = req.params.signId;
+    let stops = req.query.stops.split(',');
+    
+    // Convert stops array to PostgreSQL array format
+    let stopsString = `{${stops.map(stop => `"${stop.trim()}"`).join(',')}}`;
 
-  let returnInfo = await postgres.setSignStops(signId, stopsString);
-  res.json(returnInfo);
+    let returnInfo = await postgres.setSignStops(signId, stopsString);
+    res.json(returnInfo);
+  } catch (error) {
+    console.error('Error in /setstops/:signId:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 app.get('/signinfo/:signId', async (req, res) => {
-  let signInfo = await postgres.getSignConfig(req.params.signId);
-  
-  if (signInfo.length === 0) {
-    console.log(`Didn't find sign ${req.params.signId}`);
-    res.json({
-      error: `There is no sign with code ${req.params.signId}.`
-    });
+  try {
+    let signInfo = await postgres.getSignConfig(req.params.signId);
     
-    return;
-  } else {
-    signInfo = checkAutoSchedule(signInfo[0]);
-    res.json(signInfo);
+    if (signInfo.length === 0) {
+      console.log(`Didn't find sign ${req.params.signId}`);
+      res.json({
+        error: `There is no sign with code ${req.params.signId}.`
+      });
+      
+      return;
+    } else {
+      signInfo = checkAutoSchedule(signInfo[0]);
+      res.json(signInfo);
+    }
+  } catch (error) {
+    console.error('Error in /signinfo/:signId:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
-
 });
 
 app.get('/signstations/:signId', async (req, res) => {
-  let signInfo = await postgres.getSignConfig(req.params.signId);
-  if (signInfo.length === 0) {
-    console.log(`Didn't find sign ${req.params.signId}`);
-    res.json({
-      error: `There is no sign with code ${req.params.signId}.`
+  try {
+    let signInfo = await postgres.getSignConfig(req.params.signId);
+    if (signInfo.length === 0) {
+      console.log(`Didn't find sign ${req.params.signId}`);
+      res.json({
+        error: `There is no sign with code ${req.params.signId}.`
+      });
+
+      return;
+    }
+
+    let returnData = gtfs.stations.filter((obj) => {
+      for (let stopId of signInfo[0].stations) {
+        if (obj.stopId === stopId) {
+          return obj;
+        }
+      }
     });
 
-    return;
+    console.log(returnData);
+
+    res.json(returnData);
+  } catch (error) {
+    console.error('Error in /signstations/:signId:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
-
-  let returnData = gtfs.stations.filter((obj) => {
-    for (let stopId of signInfo[0].stations) {
-      if (obj.stopId === stopId) {
-        return obj;
-      }
-    }
-  });
-
-  console.log(returnData);
-
-  res.json(returnData);
-})
+});
 
 app.post('/signinfo/:signId', async (req, res) => {
-  let signId = req.params.signId;
-  let minTime = req.query.minArrivalTime;
-  let warnTime = req.query.warnTime;
-  let signDirection = req.query.signDirection;
-  let signRotation = req.query.signRotation;
-	let numArrivals = req.query.numArrivals;
-	let cycleTime = req.query.cycleTime;
-	let autoOff = req.query.autoOff;
-	let autoOffStart = req.query.autoOffStart;
-	let autoOffEnd = req.query.autoOffEnd;
+  try {
+    let signId = req.params.signId;
+    let minTime = req.query.minArrivalTime;
+    let warnTime = req.query.warnTime;
+    let signDirection = req.query.signDirection;
+    let signRotation = req.query.signRotation;
+    let numArrivals = req.query.numArrivals;
+    let cycleTime = req.query.cycleTime;
+    let autoOff = req.query.autoOff;
+    let autoOffStart = req.query.autoOffStart;
+    let autoOffEnd = req.query.autoOffEnd;
 
-  let newConfig = {
-      minTime: minTime,
-      warnTime: warnTime,
-      signDirection: signDirection.toUpperCase(),
-      signRotation: signRotation,
-      numArrivals: numArrivals,
-      cycleTime: cycleTime,
-      autoOff: autoOff,
-      autoOffStart: autoOffStart,
-      autoOffEnd: autoOffEnd
-  };
-  console.log(newConfig);
+    let newConfig = {
+        minTime: minTime,
+        warnTime: warnTime,
+        signDirection: signDirection.toUpperCase(),
+        signRotation: signRotation,
+        numArrivals: numArrivals,
+        cycleTime: cycleTime,
+        autoOff: autoOff,
+        autoOffStart: autoOffStart,
+        autoOffEnd: autoOffEnd
+    };
+    console.log(newConfig);
 
-  res.json(await postgres.setSignConfig(
-    signId, newConfig));
+    res.json(await postgres.setSignConfig(signId, newConfig));
+  } catch (error) {
+    console.error('Error in POST /signinfo/:signId:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 app.post('/signpower/:signid', async (req, res) => {
-  let signId = req.params.signid;
-  let powerMode = req.query.power;
-  res.json(await postgres.setSignPower(signId, powerMode))
+  try {
+    let signId = req.params.signid;
+    let powerMode = req.query.power;
+    res.json(await postgres.setSignPower(signId, powerMode));
+  } catch (error) {
+    console.error('Error in /signpower/:signid:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 app.get('/signpower/:signId', async (req, res) => {
-  let signInfo = await postgres.getSignConfig(req.params.signId);
-  console.log(signInfo);
+  try {
+    let signInfo = await postgres.getSignConfig(req.params.signId);
+    console.log(signInfo);
 
-  res.json(signInfo[0].sign_on);
+    res.json(signInfo[0].sign_on);
+  } catch (error) {
+    console.error('Error in GET /signpower/:signId:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 app.get('/stations', (req, res) => {
@@ -151,12 +237,77 @@ app.get('/stations', (req, res) => {
 });
 
 app.get('/signids', async (req, res) => {
-  res.json(await pg.getSignIds());
+  try {
+    res.json(await postgres.getSignIds());
+  } catch (error) {
+    console.error('Error in /signids:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Add monitoring endpoints for GTFS performance
+app.get('/gtfs/status', (req, res) => {
+  try {
+    const cacheStats = gtfs.getCacheStats();
+    const circuitBreakerStatus = gtfs.getCircuitBreakerStatus();
+    
+    res.json({
+      cache: cacheStats,
+      circuitBreaker: circuitBreakerStatus,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error in /gtfs/status:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/gtfs/clear-cache', (req, res) => {
+  try {
+    gtfs.clearCache();
+    res.json({ message: 'GTFS cache cleared successfully' });
+  } catch (error) {
+    console.error('Error in /gtfs/clear-cache:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/gtfs/preload-cache', (req, res) => {
+  try {
+    gtfs.preloadCache();
+    res.json({ message: 'GTFS cache preload triggered successfully' });
+  } catch (error) {
+    console.error('Error in /gtfs/preload-cache:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 var server = app.listen(app.get('port'), () => {
   app.address = app.get('host') + ':' + server.address().port;
   console.log('Listening at ' + app.address);
+});
+
+// Graceful shutdown
+process.on('SIGINT', () => {
+  console.log('Shutting down gracefully...');
+  server.close(() => {
+    console.log('Server closed');
+    postgres.close().then(() => {
+      console.log('Database connections closed');
+      process.exit(0);
+    });
+  });
+});
+
+process.on('SIGTERM', () => {
+  console.log('Shutting down gracefully...');
+  server.close(() => {
+    console.log('Server closed');
+    postgres.close().then(() => {
+      console.log('Database connections closed');
+      process.exit(0);
+    });
+  });
 });
 
 function checkAutoSchedule(signInfo) {

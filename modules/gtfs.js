@@ -385,6 +385,11 @@ function getStationSchedules(stopIds, minimumTime, tripUpdatesArray, arrivalsArr
                 if (station.stopId.includes(stopTimeUpdate.stopId.substr(0, 3)) && stopTimeUpdate.arrival) {
                     let scheduleItem = {};
                     let timeStamp = parseInt(stopTimeUpdate.arrival.time.low) * 1000;
+                    scheduleItem.arrivalTime = new Date(timeStamp).toLocaleTimeString('en-US', {
+                        timeZone: 'America/New_York',
+                        hour: 'numeric',
+                        minute: '2-digit'
+                    });
                     scheduleItem.minutesUntil = Math.floor((timeStamp - now) / 60000);
                     scheduleItem.stopId = stopTimeUpdate.stopId;
                     scheduleItem.routeId = tripUpdate.tripUpdate.trip.routeId;

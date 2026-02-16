@@ -12,7 +12,7 @@ const CACHE_TTL = 60 * 1000; // 60 seconds in milliseconds
 // Circuit breaker state
 const circuitBreaker = {
     failures: 0,
-    lastFailureTime: 0,
+    lastFailureTime: 0,  
     state: 'CLOSED', // CLOSED, OPEN, HALF_OPEN
     threshold: 5, // Number of failures before opening circuit
     timeout: 30000, // 30 seconds before trying again
@@ -151,8 +151,28 @@ function getFeedsForStation(stopId) {
     console.log('Found station:', thisStation);
 
     for (let line of thisStation.lines) {
-        let lineService = services.find(obj => obj.indexOf(line[0]) > -1 );
-        if (!returnArray.includes(lineService)) {
+        let lineService = null;
+
+        // Explicit mappings for special cases
+        if (line === 'GS') {
+            lineService = '1234566X7GS';
+        } else if (line === 'SI') {
+            lineService = 'SI'; 
+        } else if (line === 'FS') {
+            lineService = 'BDFM'; // Preserving existing behavior (F -> BDFM)
+        } else {
+            // Default prefix matching
+            let prefix = line[0];
+            if ('ACE'.indexOf(prefix) > -1) lineService = 'ACE';
+            else if ('BDFM'.indexOf(prefix) > -1) lineService = 'BDFM';
+            else if ('G' === prefix) lineService = 'G';
+            else if ('JZ'.indexOf(prefix) > -1) lineService = 'JZ';
+            else if ('NQRW'.indexOf(prefix) > -1) lineService = 'NQRW';
+            else if ('L' === prefix) lineService = 'L';
+            else if ('1234567'.indexOf(prefix) > -1) lineService = '1234566X7GS';
+        }
+
+        if (lineService && !returnArray.includes(lineService)) {
             returnArray.push(lineService);
         }
     }

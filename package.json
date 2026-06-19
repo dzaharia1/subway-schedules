@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "An api showing arrival times for any subway station",
   "main": "app.js",
+  "engines": {
+    "node": "22"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "compile-styles": "node-sass scss/main.scss --output-style expanded --source-map true --source-map-contents true --precision 6 public/css/main.css",
@@ -17,9 +20,9 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^4.18.1",
+    "firebase-admin": "^13.10.0",
+    "firebase-functions": "^7.2.5",
     "gtfs-realtime-bindings": "^0.0.6",
-    "node-fetch": "^2.6.7",
-    "pg": "^8.7.3",
-    "sqlstring": "^2.3.3"
+    "node-fetch": "^2.6.7"
   }
 }

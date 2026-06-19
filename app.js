@@ -3,7 +3,7 @@ const express = require('express');
 const path = require('path');
 const cons = require('consolidate');
 const gtfs = require('./modules/gtfs');
-const postgres = require('./modules/pg');
+const db = require('./modules/firestore');
 const cors = require('cors');
 
 let app = express();
@@ -43,7 +43,7 @@ app.get('/', (req, res) => {
 app.get('/sign/:signId', async (req, res) => {
   try {
     let signId = req.params.signId;
-    let signInfo = await postgres.getSignConfig(signId);
+    let signInfo = await db.getSignConfig(signId);
     
     if (!signInfo || signInfo.length === 0) {
       return res.status(404).json({ error: `Sign ${signId} not found` });
@@ -118,7 +118,7 @@ app.post('/setstops/:signId', async (req, res) => {
     // Convert stops array to PostgreSQL array format
     let stopsString = `{${stops.map(stop => `"${stop.trim()}"`).join(',')}}`;
 
-    let returnInfo = await postgres.setSignStops(signId, stopsString);
+    let returnInfo = await db.setSignStops(signId, stopsString);
     res.json(returnInfo);
   } catch (error) {
     console.error('Error in /setstops/:signId:', error);
@@ -128,7 +128,7 @@ app.post('/setstops/:signId', async (req, res) => {
 
 app.get('/signinfo/:signId', async (req, res) => {
   try {
-    let signInfo = await postgres.getSignConfig(req.params.signId);
+    let signInfo = await db.getSignConfig(req.params.signId);
     
     if (signInfo.length === 0) {
       console.log(`Didn't find sign ${req.params.signId}`);
@@ -149,7 +149,7 @@ app.get('/signinfo/:signId', async (req, res) => {
 
 app.get('/signstations/:signId', async (req, res) => {
   try {
-    let signInfo = await postgres.getSignConfig(req.params.signId);
+    let signInfo = await db.getSignConfig(req.params.signId);
     if (signInfo.length === 0) {
       console.log(`Didn't find sign ${req.params.signId}`);
       res.json({
@@ -202,7 +202,7 @@ app.post('/signinfo/:signId', async (req, res) => {
     };
     console.log(newConfig);
 
-    res.json(await postgres.setSignConfig(signId, newConfig));
+    res.json(await db.setSignConfig(signId, newConfig));
   } catch (error) {
     console.error('Error in POST /signinfo/:signId:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -213,7 +213,7 @@ app.post('/signpower/:signid', async (req, res) => {
   try {
     let signId = req.params.signid;
     let powerMode = req.query.power;
-    res.json(await postgres.setSignPower(signId, powerMode));
+    res.json(await db.setSignPower(signId, powerMode));
   } catch (error) {
     console.error('Error in /signpower/:signid:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -222,7 +222,7 @@ app.post('/signpower/:signid', async (req, res) => {
 
 app.get('/signpower/:signId', async (req, res) => {
   try {
-    let signInfo = await postgres.getSignConfig(req.params.signId);
+    let signInfo = await db.getSignConfig(req.params.signId);
     console.log(signInfo);
 
     res.json(signInfo[0].sign_on);
@@ -238,7 +238,7 @@ app.get('/stations', (req, res) => {
 
 app.get('/signids', async (req, res) => {
   try {
-    res.json(await postgres.getSignIds());
+    res.json(await db.getSignIds());
   } catch (error) {
     console.error('Error in /signids:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -282,33 +282,42 @@ app.post('/gtfs/preload-cache', (req, res) => {
   }
 });
 
-var server = app.listen(app.get('port'), () => {
-  app.address = app.get('host') + ':' + server.address().port;
-  console.log('Listening at ' + app.address);
-});
+const { onRequest } = require('firebase-functions/v2/https');
 
-// Graceful shutdown
-process.on('SIGINT', () => {
-  console.log('Shutting down gracefully...');
-  server.close(() => {
-    console.log('Server closed');
-    postgres.close().then(() => {
-      console.log('Database connections closed');
-      process.exit(0);
+if (require.main === module) {
+  var server = app.listen(app.get('port'), () => {
+    app.address = app.get('host') + ':' + server.address().port;
+    console.log('Listening at ' + app.address);
+  });
+
+  // Graceful shutdown
+  process.on('SIGINT', () => {
+    console.log('Shutting down gracefully...');
+    server.close(() => {
+      console.log('Server closed');
+      db.close().then(() => {
+        console.log('Database connections closed');
+        process.exit(0);
+      });
     });
   });
-});
 
-process.on('SIGTERM', () => {
-  console.log('Shutting down gracefully...');
-  server.close(() => {
-    console.log('Server closed');
-    postgres.close().then(() => {
-      console.log('Database connections closed');
-      process.exit(0);
+  process.on('SIGTERM', () => {
+    console.log('Shutting down gracefully...');
+    server.close(() => {
+      console.log('Server closed');
+      db.close().then(() => {
+        console.log('Database connections closed');
+        process.exit(0);
+      });
     });
   });
-});
+}
+
+exports.api = onRequest({
+  timeoutSeconds: 60,
+  memory: '512MiB', // GTFS processing can be memory intensive
+}, app);
 
 function checkAutoSchedule(signInfo) {
   if (signInfo["shutoff_schedule"] && signInfo['sign_on']) {

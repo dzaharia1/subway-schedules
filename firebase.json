@@ -1,0 +1,15 @@
+{
+  "functions": {
+    "source": ".",
+    "ignore": [
+      "node_modules",
+      ".git",
+      ".github",
+      "feedfiles.zip",
+      "output.log",
+      ".env",
+      ".env.local",
+      "setup-log.json"
+    ]
+  }
+}

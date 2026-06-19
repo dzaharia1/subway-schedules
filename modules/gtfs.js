@@ -40,8 +40,6 @@ let feeds = {
     "SI": "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-si"
 }
 
-// API key for MTA feeds
-const API_KEY = process.env.MTA_API_KEY || 'NaAY1FHNnu7I49kZeb681az1hn7YW4z68zwnnN8X';
 
 // Cache management functions
 function getCachedData(key) {
@@ -249,10 +247,7 @@ async function getTripUpdates(services, tripUpdatesArray, callback) {
         // Fetch all services in parallel
         const promises = services.map(async (service) => {
             const requestSettings = {
-                method: 'GET',
-                headers: {
-                    'x-api-key': API_KEY
-                }
+                method: 'GET'
             };
             
             try {
@@ -574,10 +569,7 @@ async function preloadGTFSCache() {
         // Fetch data for all services in parallel
         const promises = services.map(async (service) => {
             const requestSettings = {
-                method: 'GET',
-                headers: {
-                    'x-api-key': API_KEY
-                }
+                method: 'GET'
             };
             
             try {

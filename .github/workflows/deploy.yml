@@ -23,6 +23,6 @@ jobs:
         run: npm ci
 
       - name: Deploy to Firebase
-        run: npx firebase-tools deploy --only functions --force
+        run: npx firebase-tools deploy --only functions,hosting --force
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}

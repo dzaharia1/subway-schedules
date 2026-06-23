@@ -37,7 +37,7 @@ app.host = app.set('host', process.env.HOST || localhost);
 app.port = app.set('port', process.env.PORT || localport);
 
 app.get('/', (req, res) => {
-  res.render('sign-selector', { signInfo: {} });
+  res.json({ status: 'running', service: 'subway-sign-backend' });
 });
 
 app.get('/sign/:signId', async (req, res) => {
